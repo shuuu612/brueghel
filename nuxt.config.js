@@ -3,7 +3,7 @@ export default {
   head: {
     title: 'brueghel',
     htmlAttrs: {
-      lang: 'en'
+      lang: 'ja'
     },
     meta: [
       { charset: 'utf-8' },
@@ -12,12 +12,17 @@ export default {
       { name: 'format-detection', content: 'telephone=no' }
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      { rel: 'preconnect', href: 'https://fonts.googleapis.com'},
+      { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: ''},
+      { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap'},
     ]
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [
+    '@/assets/scss/ress.scss',
+    '@/assets/scss/common.scss'
   ],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
@@ -37,12 +42,39 @@ export default {
   modules: [
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
+    '@nuxtjs/style-resources',
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
-  axios: {},
+  axios: {
+    proxy: true,
+  },
+
+  proxy: {
+    '/dev/': { target: 'https://0nw778k56a.execute-api.ap-northeast-1.amazonaws.com' }
+  },
+
+  styleResources: {
+    scss: [
+      '@/assets/scss/mixin.scss',
+      '@/assets/scss/font.scss',
+      '@/assets/scss/color.scss',
+      '@/assets/scss/object.scss',
+    ]
+  },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
-  }
+    terser: {
+      terserOptions: {
+        compress: {
+          drop_console: process.env.NODE_ENV === "production"
+        }
+      }
+    },
+  },
+
+  generate: {
+    interval: 300,
+  },
 }
