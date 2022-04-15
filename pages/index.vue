@@ -233,6 +233,7 @@ export default {
     getFormatName() {
       return function (key, index, index2) {
         if (key === 'webp') return 'WebP';
+        else if (key === 'original' && this.settingFiles[index][index2].originalFormat === 'webp') return 'WebP';
         else if (key === 'original') return this.settingFiles[index][index2].originalFormat.toUpperCase();
         else return key.toUpperCase();
       };
@@ -666,6 +667,9 @@ export default {
     clickSwitch() {
       this.allInOneSetting = !this.allInOneSetting;
 
+      // 画像がない場合はここで終わり
+      if (this.settingFiles.length === 0) return;
+
       // すべての画像に１つ目の設定を適応
       if (this.allInOneSetting) {
         // オリジナルデータを退避
@@ -1065,7 +1069,6 @@ export default {
   }
 }
 .upload-outer {
-  z-index: 100;
   display: inline;
   margin-right: 6px;
   padding: 6px 12px;
