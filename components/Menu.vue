@@ -548,7 +548,11 @@ export default {
       this.adjustAspectRatio(key);
 
       // 桁数チェック
-      this.digitCheck();
+      this.checkDigit();
+
+      // ローカルデータに設定
+      this.data.width = this.pendingWidth;
+      this.data.height = this.pendingHeight;
 
       // 変更済みとする
       this.resizeChange = true;
@@ -590,7 +594,7 @@ export default {
         this.pendingWidth = Math.round(this.pendingHeight * (this.originalWidth / this.originalHeight));
       }
     },
-    digitCheck() {
+    checkDigit() {
       let count = 0;
       if (this.pendingWidth >= '10000') {
         this.pendingWidth = '9999';
@@ -798,5 +802,4 @@ export default {
   align-items: center;
   justify-content: center;
 }
-
 </style>
