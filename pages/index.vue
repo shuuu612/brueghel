@@ -134,8 +134,6 @@
             :disabled="getDisabledDownloadButton(index)"
             @click="manageDownload(index)"
             />
-            <!-- <button class="button conversion" :class="getClassSubmitButton(index)" :disabled="getDisabledSubmitButton(index)" @click="submit(index)">変換</button>
-            <button class="button download" :class="getClassDownloadButton(index)" :disabled="getDisabledDownloadButton(index)" @click="download(index)">ダウンロード</button> -->
           </div>
           <DeleteButton
           top="-8px"
@@ -164,6 +162,28 @@
         <p class="text margin-top-20">対応ファイル：JPEG / PNG / WebP / GIF / TIFF / AVIF / HEIF / BMP</p>
         <input id="upload" class="upload" type="file" :accept="supportFormat" multiple @change="inputFile" />
       </div>
+      <div class="setting-bar" @click="closeMenu">
+        <div class="setting-bar-inner">
+          <div class="setting-bar-buttons">
+            <Button
+            text="一括変換"
+            width="150px"
+            height="40px"
+            type="white"
+            :style="{marginRight: '20px'}"
+            @click="allSubmit"
+            />
+            <Button
+            text="一括ダウンロード"
+            width="150px"
+            height="40px"
+            type="purple"
+            :disabled="getDisabledAllDownloadButton"
+            @click="allDownload"
+            />
+          </div>
+        </div>
+      </div>
     </main>
   </div>
 </template>
@@ -180,6 +200,8 @@ export default {
       selectedIndex: 0,
       selectedIndex2: 0,
       allInOneSetting: false,
+      converting: false,
+      convertingAll: false,
       supportFormat: [
         'image/jpeg',
         'image/png',
@@ -216,7 +238,6 @@ export default {
   },
   computed: {
     getSettingFiles() {
-      console.log('getSettingFiles');
       return this.allInOneSetting ? this.firstFiles : this.settingFiles;
     },
     getClassDropArea() {
@@ -234,8 +255,22 @@ export default {
         for (let i = 0; i < length; i++) {
           if (this.settingFiles[key][i].outputImage) count++;
         }
-        return !(length === count);
+        return !(count > 0 && !this.converting && !this.convertingAll);
       };
+    },
+    getDisabledAllDownloadButton() {
+      const length1 = this.settingFiles.length;
+      let count1 = 0;
+      for (let i = 0; i < length1; i++) {
+        const length2 = this.settingFiles[i].length;
+        let count2 = 0;
+        for (let j = 0; j < length2; j++) {
+          if (this.settingFiles[i][j].outputImage) count2++;
+        }
+        if (count2 > 0) count1++;
+      }
+
+      return !(count1 > 0 && !this.converting && !this.convertingAll);
     },
     getFormatName() {
       return function (key, index, index2) {
@@ -261,7 +296,6 @@ export default {
     },
     getImageStyle() {
       return function (index) {
-        console.log('getImageStyle');
         if (this.settingFiles[index][0].originalWidth >= this.settingFiles[index][0].originalHeight) {
           return { width: '100%' };
         } else {
@@ -280,7 +314,6 @@ export default {
   },
   watch: {
     settingFiles(value) {
-      console.log('settingFiles', value);
       this.firstFiles.length = 0;
       if (value.length === 0) {
         // 最後の設定を削除したとき
@@ -408,7 +441,6 @@ export default {
       else return data + 'B';
     },
     conversionFormatLevel(format, level) {
-      console.log('conversionFormatLevel');
       // オリジナルまたはロスレスの場合は設定不要
       if (format === 'original' || level === 'lossless') return 0;
 
@@ -426,10 +458,27 @@ export default {
         return 0;
       }
     },
+    async allSubmit() {
+      // 変換中フラグ（ALL）をON
+      this.convertingAll = true;
+
+      const length = this.settingFiles.length;
+      for (let i = 0; i < length; i++) {
+        await this.manageSubmit(i);
+        // 変換中フラグをOFF
+        if (i === length - 1) this.convertingAll = false;
+      }
+    },
     async manageSubmit(index) {
+      // 変換中フラグをON
+      this.converting = true;
+
       const length = this.settingFiles[index].length;
       for (let i = 0; i < length; i++) {
         await this.submit(index, i);
+
+        // 変換中フラグをOFF
+        if (i === length - 1) this.converting = false;
       }
     },
     async submit(index, index2) {
@@ -538,9 +587,32 @@ export default {
         alert('送信に失敗しました。');
       }
     },
+    allDownload() {
+      // ダウンロードファイル数を算出
+      const length1 = this.settingFiles.length;
+      let count = 0;
+      let index = 0;
+      for (let i = 0; i < length1; i++) {
+        const length2 = this.settingFiles[i].length;
+        for (let j = 0; j < length2; j++) {
+          if (this.settingFiles[i][j].outputImage) {
+            count++;
+            index = i;
+          }
+        }
+      }
+
+      // ファイルが複数ある場合はzip形式で、１つの場合はファイル形式でダウンロード
+      if (count > 1) {
+        this.downloadFolderAll();
+      } else if (count === 1) {
+        this.downloadFile(index);
+      }
+    },
     manageDownload(index) {
       // ダウンロードファイル数を算出
-      const length = this.settingFiles[index].length;
+      const file = this.settingFiles[index].filter((item) => item.outputImage);
+      const length = file.length;
 
       // ファイルが複数ある場合はzip形式で、１つの場合はファイル形式でダウンロード
       if (length > 1) {
@@ -548,6 +620,53 @@ export default {
       } else if (length === 1) {
         this.downloadFile(index);
       }
+    },
+    async downloadFolderAll() {
+      // JSZipインスタンスの作成
+      const zip = new JSZip();
+
+      // フォルダを作成
+      const folderName = `${this.getDate('second')}_brueghel`;
+      const folder = zip.folder(folderName);
+
+      // ファイルに名前をつけてフォルダに格納
+      const length1 = this.settingFiles.length;
+      const fileNames = [];
+      for (let i = 0; i < length1; i++) {
+        const length2 = this.settingFiles[i].length;
+        for (let j = 0; j < length2; j++) {
+          // 未変換のファイルは無視する
+          if (this.settingFiles[i][j].outputFile.length === 0) continue;
+
+          // ファイル名を作成
+          let fileName = this.createFileName(i, j);
+
+          // ファイル名の重複をチェック
+          fileNames.push(fileName + '.' + this.getFormat(i, j));
+          const check = fileNames.filter((name) => name === fileName + '.' + this.getFormat(i, j));
+          if (check.length > 1) {
+            fileName = `${fileName} (${check.length - 1}).${this.getFormat(i, j)}`;
+          } else {
+            fileName = `${fileName}.${this.getFormat(i, j)}`;
+          }
+
+          // フォルダにファイルを格納
+          folder.file(fileName, this.settingFiles[i][j].outputFile);
+        }
+      }
+
+      // zipフォルダを作成
+      let zipFile;
+      await zip.generateAsync({ type: 'blob' }).then((blob) => {
+        zipFile = blob;
+      });
+
+      // ダウンロード
+      const link = document.createElement('a');
+      link.download = `${folderName}.zip`;
+      link.href = URL.createObjectURL(zipFile);
+      link.click();
+      URL.revokeObjectURL(link.href);
     },
     async downloadFolder(index) {
       // JSZipインスタンスの作成
@@ -561,6 +680,9 @@ export default {
       const length = this.settingFiles[index].length;
       const fileNames = [];
       for (let i = 0; i < length; i++) {
+        // 未変換のファイルは無視する
+        if (this.settingFiles[index][i].outputFile.length === 0) continue;
+
         // ファイル名を作成
         let fileName = this.createFileName(index, i);
 
@@ -1083,34 +1205,6 @@ export default {
   justify-content: center;
   width: 150px;
   height: 144px;
-  /* .button {
-    width: 120px;
-    height: 32px;
-    border-radius: 50px;
-    font-size: var(--font-size-md);
-    font-weight: 400;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    &:first-of-type {
-      margin-bottom: 10px;
-    }
-    
-    &.conversion {
-      background-color: var(--white);
-      color: var(--gray7);
-      border: 1px var(--color3) solid;
-      &.disabled {
-      }
-    }
-    &.download {
-      background-color: var(--color4);
-      color: var(--white);
-      &.disabled {
-        background-color: var(--gray4);
-      }
-    }
-  } */
 }
 .add-button {
   position: absolute;
@@ -1175,4 +1269,34 @@ export default {
 .upload {
   display: none;
 }
+.setting-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 70px;
+  background-color: var(--color1);
+}
+.setting-bar-inner {
+  position: relative;
+  margin-bottom: 20px;
+  width: 1200px;
+  height: 70px;
+  border-top: 2px var(--color1) solid;
+  border-radius: 0 0 10px 10px;
+  background-color: var(--white);
+}
+.setting-bar-buttons {
+  position: absolute;
+  top: 14px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 </style>
