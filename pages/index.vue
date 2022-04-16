@@ -162,6 +162,7 @@
   </div>
 </template>
 <script>
+import JSZip from 'jszip';
 export default {
   data() {
     return {
@@ -184,7 +185,7 @@ export default {
         'image/bmp',
       ],
       meta: {
-        title: '画像変換ツール | Monet',
+        title: 'Brueghel',
         keywords: '',
         description: '',
         type: 'website',
@@ -345,6 +346,7 @@ export default {
           .catch((err) => {
             console.log(err);
           });
+
         // データを作成
         const data = [
           {
@@ -365,6 +367,7 @@ export default {
             outputInfo: '',
             outputImage: '',
             outputImageSize: 0,
+            outputFile: [],
           },
         ];
         this.settingFiles.push(data);
@@ -499,7 +502,7 @@ export default {
         for (let j = 0; j < bin.length; j++) {
           buffer[j] = bin.charCodeAt(j);
         }
-        const file = new File([buffer.buffer], `${this.getDate()}.${this.getFormat(index, index2)}`, {
+        const file = new File([buffer.buffer], `output.${this.getFormat(index, index2)}`, {
           type: `image/${this.getFormat(index, index2)}`,
         });
 
@@ -512,34 +515,109 @@ export default {
         this.settingFiles[index][index2].outputImage = data.image;
         this.settingFiles[index][index2].outputInfo = info;
         this.settingFiles[index][index2].outputImageSize = file.size;
+        this.settingFiles[index][index2].outputFile = file;
         this.settingFiles.splice();
       } else {
         alert('送信に失敗しました。');
       }
     },
-    async manageDownload(index) {
+    manageDownload(index) {
+      // ダウンロードファイル数を算出
       const length = this.settingFiles[index].length;
-      for (let i = 0; i < length; i++) {
-        await this.download(index, i);
+
+      // ファイルが複数ある場合はzip形式で、１つの場合はファイル形式でダウンロード
+      if (length > 1) {
+        this.downloadFolder(index);
+      } else if (length === 1) {
+        this.downloadFile(index);
       }
     },
-    async download(index, index2) {
+    async downloadFolder(index) {
+      // JSZipインスタンスの作成
+      const zip = new JSZip();
+
+      // フォルダを作成
+      const folderName = `${this.getDate('second')}_brueghel`;
+      const folder = zip.folder(folderName);
+
+      // ファイルに名前をつけてフォルダに格納
+      const length = this.settingFiles[index].length;
+      const fileNames = [];
+      for (let i = 0; i < length; i++) {
+        // ファイル名を作成
+        let fileName = this.createFileName(index, i);
+
+        // ファイル名の重複をチェック
+        fileNames.push(fileName + '.' + this.getFormat(index, i));
+        const check = fileNames.filter((name) => name === fileName + '.' + this.getFormat(index, i));
+        if (check.length > 1) {
+          fileName = `${fileName} (${check.length - 1}).${this.getFormat(index, i)}`;
+        } else {
+          fileName = `${fileName}.${this.getFormat(index, i)}`;
+        }
+
+        // フォルダにファイルを格納
+        folder.file(fileName, this.settingFiles[index][i].outputFile);
+      }
+
+      // zipフォルダを作成
+      let zipFile;
+      await zip.generateAsync({ type: 'blob' }).then((blob) => {
+        zipFile = blob;
+      });
+
+      // ダウンロード
       const link = document.createElement('a');
-      link.download = `${this.getDate()}.${this.getFormat(index, index2)}`;
+      link.download = `${folderName}.zip`;
+      link.href = URL.createObjectURL(zipFile);
+      link.click();
+      URL.revokeObjectURL(link.href);
+    },
+    downloadFile(index, index2 = 0) {
+      const link = document.createElement('a');
+      link.download = `${this.createFileName(index, index2)}.${this.getFormat(index, index2)}`;
       link.href = this.settingFiles[index][index2].outputInfo + this.settingFiles[index][index2].outputImage;
       link.click();
-      await URL.revokeObjectURL(link.href);
+      URL.revokeObjectURL(link.href);
     },
-    getDate() {
+    createFileName(index, index2) {
+      // オリジナルファイル名から拡張子を除去
+      const name1 = this.settingFiles[index][index2].originalName;
+      const name = name1.substr(0, name1.lastIndexOf('.'));
+
+      // ファイル名を作成
+      let fileName;
+      if (
+        this.settingFiles[index][index2].originalWidth === this.settingFiles[index][index2].settingWidth &&
+        this.settingFiles[index][index2].originalHeight === this.settingFiles[index][index2].settingHeight
+      ) {
+        fileName = name;
+      } else {
+        fileName = name + '--' + this.settingFiles[index][index2].settingWidth;
+      }
+      return fileName;
+    },
+    getDate(type) {
       const today = new Date();
-      const date =
-        today.getFullYear() +
-        (today.getMonth() + 1).toString().padStart(2, '0') +
-        today.getDate().toString().padStart(2, '0') +
-        today.getHours().toString().padStart(2, '0') +
-        today.getMinutes().toString().padStart(2, '0') +
-        today.getSeconds().toString().padStart(2, '0') +
-        today.getMilliseconds().toString().padStart(3, '0');
+      let date;
+      if (type === 'second') {
+        date =
+          today.getFullYear() +
+          (today.getMonth() + 1).toString().padStart(2, '0') +
+          today.getDate().toString().padStart(2, '0') +
+          today.getHours().toString().padStart(2, '0') +
+          today.getMinutes().toString().padStart(2, '0') +
+          today.getSeconds().toString().padStart(2, '0');
+      } else {
+        date =
+          today.getFullYear() +
+          (today.getMonth() + 1).toString().padStart(2, '0') +
+          today.getDate().toString().padStart(2, '0') +
+          today.getHours().toString().padStart(2, '0') +
+          today.getMinutes().toString().padStart(2, '0') +
+          today.getSeconds().toString().padStart(2, '0') +
+          today.getMilliseconds().toString().padStart(3, '0');
+      }
       return date;
     },
     addSetting(index) {
@@ -565,6 +643,7 @@ export default {
             outputInfo: '',
             outputImage: '',
             outputImageSize: 0,
+            outputFile: [],
           };
           this.settingFiles[i].push(data);
         }
@@ -588,6 +667,7 @@ export default {
           outputInfo: '',
           outputImage: '',
           outputImageSize: 0,
+          outputFile: [],
         };
         this.settingFiles[index].push(data);
       }
@@ -639,6 +719,7 @@ export default {
           this.settingFiles[i][index2].outputInfo = '';
           this.settingFiles[i][index2].outputImage = '';
           this.settingFiles[i][index2].outputImageSize = 0;
+          this.settingFiles[i][index2].outputFile = [];
         }
       } else {
         const index = res.index;
@@ -653,6 +734,7 @@ export default {
         this.settingFiles[index][index2].outputInfo = '';
         this.settingFiles[index][index2].outputImage = '';
         this.settingFiles[index][index2].outputImageSize = 0;
+        this.settingFiles[index][index2].outputFile = [];
       }
 
       this.closeMenu();
@@ -731,6 +813,7 @@ export default {
               outputInfo: '',
               outputImage: '',
               outputImageSize: 0,
+              outputFile: [],
             },
           ];
           this.settingFiles.push(data);
@@ -754,6 +837,7 @@ export default {
               outputInfo: '',
               outputImage: '',
               outputImageSize: 0,
+              outputFile: [],
             };
             this.settingFiles[i].push(data);
           }
@@ -1081,5 +1165,4 @@ export default {
 .upload {
   display: none;
 }
-
 </style>
