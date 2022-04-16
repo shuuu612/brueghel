@@ -909,7 +909,7 @@ export default {
   justify-content: flex-start;
   margin-bottom: 50px;
   padding: 60px 30px 200px 30px;
-  min-height: calc(100vh - var(--header));
+  min-height: calc(100vh - var(--header) - 50px);
   /* width: 100%; */
   width: 1200px;
   border-radius: 10px;
