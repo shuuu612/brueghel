@@ -145,7 +145,7 @@
         @dragenter="dragEnter"
         @dragleave="dragLeave"
         @dragover.prevent
-        @drop.prevent="dropFile"
+        @drop.prevent="inputFile"
       >
         <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 308.47 370.52" fill="#231815">
           <path id="d" d="M308.47,101.7c-.02-.52-.07-1.05-.16-1.56v-9.22c0-3.37-1.34-6.61-3.72-9L226.39,3.73c-2.39-2.38-5.62-3.73-8.99-3.73H29.57C13.25,.02,.02,13.25,0,29.57V340.95c.02,16.32,13.25,29.55,29.57,29.57h249.17c16.32-.02,29.55-13.25,29.57-29.57V103.26c.09-.52,.14-1.04,.16-1.57m-32.83-12.72h-61.09V27.88l61.09,61.09Zm3.1,256.1H29.57c-2.27,0-4.11-1.84-4.11-4.11V29.57c0-2.27,1.84-4.11,4.11-4.11H189.09V101.68c0,7.03,5.69,12.73,12.72,12.73h81.04v226.54c0,2.27-1.84,4.11-4.11,4.11"/>
@@ -156,7 +156,7 @@
           <p class="text">またはドラッグ&ドロップでファイルを追加できます。</p>
         </div>
         <p class="text margin-top-20">対応ファイル：JPEG / PNG / WebP / GIF / TIFF / AVIF / HEIF / BMP</p>
-        <input id="upload" class="upload" type="file" :accept="supportFormat" multiple @change="dropFile" />
+        <input id="upload" class="upload" type="file" :accept="supportFormat" multiple @change="inputFile" />
       </div>
     </main>
   </div>
@@ -293,29 +293,36 @@ export default {
     dragLeave() {
       this.isEnter = false;
     },
-    async dropFile(event) {
+    async inputFile(event) {
       this.isEnter = false;
       // ファイル選択またはドロップされたファイルを取得
       const inputFiles = event.target.files ? event.target.files : event.dataTransfer.files;
       const files = [...inputFiles];
       console.log(inputFiles);
-      console.log(files);
 
-      // 許可する画像ファイルだけを抽出
+      // 許可する画像ファイル形式だけを抽出
       const imageFiles = files.filter((item) => this.supportFormat.includes(item.type));
+
+      // 大きすぎるファイルを除外(4.2MBまで許可)
+      const rightSizeFiles = imageFiles.filter((item) => item.size < 4200000);
+
+      // 許可されたファイル
+      const enableFile = rightSizeFiles;
 
       // 対応ファイル以外のアップロードに対するメッセージを表示
       if (imageFiles.length === 0) {
         alert('このファイルは対象外です。');
       } else if (imageFiles.length < files.length) {
         alert('対象外のファイルが含まれていました。');
+      } else if (rightSizeFiles.length < imageFiles.length) {
+        alert('4.2MB以上のファイルはアップロードできません。');
       }
 
       // データをローカルに保存
-      for (let i = 0; i < imageFiles.length; i++) {
+      for (let i = 0; i < enableFile.length; i++) {
         // Base64変換
         let imageBase64;
-        await this.conversionBase64(imageFiles[i])
+        await this.conversionBase64(enableFile[i])
           .then((res) => {
             imageBase64 = res;
           })
@@ -338,7 +345,7 @@ export default {
         // 画像サイズを取得
         let width;
         let height;
-        await this.getImageSize(imageFiles[i])
+        await this.getImageSize(enableFile[i])
           .then((res) => {
             width = res.width;
             height = res.height;
@@ -350,8 +357,8 @@ export default {
         // データを作成
         const data = [
           {
-            originalName: imageFiles[i].name,
-            originalFileSize: imageFiles[i].size,
+            originalName: enableFile[i].name,
+            originalFileSize: enableFile[i].size,
             originalWidth: width,
             originalHeight: height,
             originalFormat: format,
@@ -482,6 +489,10 @@ export default {
           console.log('サーバーのエラー', response.data.errorMessage);
           if (response.data.errorMessage.includes('timed out')) {
             alert('タイムアウト\nファイルが大きすぎる可能性があります。');
+          } else if (response.data.errorMessage.includes('size exceeded maximum')) {
+            alert(
+              '変換後のファイルサイズが大きすぎるためエラーとなりました。\n申し訳ありませんが、設定を変更してください。'
+            );
           } else {
             alert('エラーが発生しました');
           }
