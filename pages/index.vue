@@ -86,6 +86,7 @@
               top="-5px"
               right="-5px"
               width="18px"
+              icon-width="8px"
               @click="deleteSetting(index, index2)"
               />
               <Menu
@@ -139,6 +140,7 @@
           top="-8px"
           right="-8px"
           width="20px"
+          icon-width="8px"
           @click="deleteImage(index)"
           />
         </div>
@@ -1298,5 +1300,4 @@ export default {
   align-items: center;
   justify-content: center;
 }
-
 </style>
