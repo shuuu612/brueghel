@@ -1,7 +1,7 @@
 <template>
-  <div class="wrapper">
-    <SimpleHeader />
+  <div class="wrapper"> 
     <main class="main">
+      <Logo />
       <div class="switch-outer">
         <p class="switch-text">すべての画像に同じ設定を適応</p>
         <SwitchButton :on="allInOneSetting" @click="clickSwitch"/>
@@ -907,9 +907,10 @@ export default {
   align-items: center;
   flex-direction: column;
   justify-content: flex-start;
-  margin-bottom: 50px;
+  margin-top: 20px;
+  margin-bottom: 20px;
   padding: 60px 30px 200px 30px;
-  min-height: calc(100vh - var(--header) - 50px);
+  min-height: calc(100vh - 40px);
   /* width: 100%; */
   width: 1200px;
   border-radius: 10px;
