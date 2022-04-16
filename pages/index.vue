@@ -82,11 +82,12 @@
                   <path d="M172.3,265.55H67.77c-8.28,0-15-6.72-15-15s6.72-15,15-15h104.54c8.28,0,15,6.72,15,15s-6.72,15-15,15Z"/>
                 </svg>
               </button>
-              <button class="delete-button" @click="deleteSetting(index, index2)">
-                <svg class="delete-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 156 153.78" fill="#231815">
-                  <path d="M151.77,129.15l-53.36-53.36,51.16-51.16c5.64-5.64,5.64-14.77,0-20.4s-14.77-5.64-20.4,0l-51.16,51.16L26.84,4.23C21.21-1.41,12.08-1.41,6.44,4.23,.8,9.86,.8,19,6.44,24.63l51.16,51.16L4.23,129.15c-5.64,5.64-5.64,14.77,0,20.41,2.82,2.82,6.51,4.23,10.2,4.23s7.38-1.41,10.2-4.23l53.37-53.36,53.36,53.36c2.82,2.82,6.51,4.23,10.2,4.23s7.38-1.41,10.2-4.23c5.64-5.64,5.64-14.77,0-20.41Z"/>
-                </svg>
-              </button>
+              <DeleteButton
+              top="-5px"
+              right="-5px"
+              width="18px"
+              @click="deleteSetting(index, index2)"
+              />
               <Menu
               :unique-index="index"
               :unique-index2="index2"
@@ -136,7 +137,12 @@
             <!-- <button class="button conversion" :class="getClassSubmitButton(index)" :disabled="getDisabledSubmitButton(index)" @click="submit(index)">変換</button>
             <button class="button download" :class="getClassDownloadButton(index)" :disabled="getDisabledDownloadButton(index)" @click="download(index)">ダウンロード</button> -->
           </div>
-            
+          <DeleteButton
+          top="-8px"
+          right="-8px"
+          width="20px"
+          @click="deleteImage(index)"
+          />
         </div>
       </div>
       <div
@@ -683,8 +689,18 @@ export default {
         this.settingFiles[index].push(data);
       }
     },
+    deleteImage(index) {
+      if (this.allInOneSetting) {
+        // 同一設定中のため、すべてのファイルを操作
+        this.settingFiles.length = 0;
+        this.settingFiles.splice();
+      } else if (!this.allInOneSetting) {
+        this.settingFiles.splice(index, 1);
+      }
+    },
     deleteSetting(index, index2) {
       if (this.allInOneSetting) {
+        // 同一設定中のため、すべてのファイルを操作
         if (this.settingFiles[index].length === 1) {
           console.log('最後の設定');
           // 最後の設定ファイルのため、画像自体を削除
@@ -1054,24 +1070,6 @@ export default {
   width: 20px;
 
   fill: var(--gray7);
-}
-.delete-button {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  border: 1px var(--color3) solid;
-  border-radius: 20px;
-  background-color: var(--white);
-}
-.delete-icon {
-  width: 8px;
-
-  fill: var(--color3);
 }
 
 .button-outer {
