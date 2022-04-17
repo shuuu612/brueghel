@@ -9,6 +9,11 @@ export default {
       required: false,
       default: undefined,
     },
+    fontSize: {
+      type: String,
+      required: false,
+      default: 'middle',
+    },
     width: {
       type: String,
       required: false,
@@ -35,7 +40,13 @@ export default {
   },
   computed: {
     getClass() {
-      return { white: this.type === 'white', purple: this.type === 'purple', disabled: this.disabled };
+      return {
+        white: this.type === 'white',
+        purple: this.type === 'purple',
+        gray: this.type === 'gray',
+        disabled: this.disabled,
+        small: this.fontSize === 'small',
+      };
     },
     getStyle() {
       return {
@@ -57,19 +68,17 @@ export default {
 
 <style lang="scss" scoped>
 .button {
-  border-radius: 50px;
-  font-size: var(--font-size-md);
-  font-weight: 400;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 50px;
+  font-weight: 400;
+  font-size: var(--font-size-md);
 
   &.white {
+    border: 1px var(--color3) solid;
     background-color: var(--white);
     color: var(--gray7);
-    border: 1px var(--color3) solid;
-    &.disabled {
-    }
   }
   &.purple {
     background-color: var(--color4);
@@ -78,5 +87,14 @@ export default {
       background-color: var(--gray4);
     }
   }
+  &.gray {
+    border: 1px var(--gray4) solid;
+    background-color: var(--white);
+    color: var(--gray4);
+  }
+  &.small {
+    font-size: var(--font-size-xs);
+  }
 }
+
 </style>
