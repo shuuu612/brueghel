@@ -404,29 +404,63 @@ export default {
           });
 
         // データを作成
-        const data = [
-          {
-            originalName: enableFile[i].name,
-            originalFileSize: enableFile[i].size,
-            originalWidth: width,
-            originalHeight: height,
-            originalFormat: format,
-            originalInfo: info,
-            originalImage: image,
-            settingFormat: 'original',
-            settingFormatLevel: 'none',
-            settingWidth: width,
-            settingHeight: height,
-            settingFit: 'cover',
-            settingPosition: 'center',
-            settingBackground: '#000000',
-            outputInfo: '',
-            outputImage: '',
-            outputImageSize: 0,
-            outputFile: [],
-          },
-        ];
-        this.settingFiles.push(data);
+        if (this.allInOneSetting) {
+          // 同一設定中
+          const length = this.settingFiles[0].length;
+          const settingData = [];
+          for (let j = 0; j < length; j++) {
+            const resize = !(
+              this.settingFiles[0][0].originalWidth === this.settingFiles[0][j].settingWidth &&
+              this.settingFiles[0][0].originalHeight === this.settingFiles[0][j].settingHeight
+            );
+            const data = {
+              originalName: enableFile[i].name,
+              originalFileSize: enableFile[i].size,
+              originalWidth: width,
+              originalHeight: height,
+              originalFormat: format,
+              originalInfo: info,
+              originalImage: image,
+              settingFormat: this.settingFiles[0][j].settingFormat,
+              settingFormatLevel: this.settingFiles[0][j].settingFormatLevel,
+              settingWidth: resize ? this.settingFiles[0][j].settingWidth : width,
+              settingHeight: resize ? this.settingFiles[0][j].settingHeight : height,
+              settingFit: this.settingFiles[0][j].settingFit,
+              settingPosition: this.settingFiles[0][j].settingPosition,
+              settingBackground: this.settingFiles[0][j].settingBackground,
+              outputInfo: '',
+              outputImage: '',
+              outputImageSize: 0,
+              outputFile: [],
+            };
+            settingData.push(data);
+          }
+          this.settingFiles.push(settingData);
+        } else {
+          const data = [
+            {
+              originalName: enableFile[i].name,
+              originalFileSize: enableFile[i].size,
+              originalWidth: width,
+              originalHeight: height,
+              originalFormat: format,
+              originalInfo: info,
+              originalImage: image,
+              settingFormat: 'original',
+              settingFormatLevel: 'none',
+              settingWidth: width,
+              settingHeight: height,
+              settingFit: 'cover',
+              settingPosition: 'center',
+              settingBackground: '#000000',
+              outputInfo: '',
+              outputImage: '',
+              outputImageSize: 0,
+              outputFile: [],
+            },
+          ];
+          this.settingFiles.push(data);
+        }
       }
     },
     conversionBase64(src) {
@@ -913,7 +947,7 @@ export default {
 
       // すべての画像に１つ目の設定を適応
       if (this.allInOneSetting) {
-        // オリジナルデータを退避
+        // すべての画像のオリジナルデータを退避
         const length = this.settingFiles.length;
         const originalData = [];
         for (let i = 0; i < length; i++) {
@@ -929,7 +963,7 @@ export default {
           originalData.push(data);
         }
 
-        // 設定データを退避
+        // １つ目の画像の設定データを退避
         const length2 = this.settingFiles[0].length;
         const settingData = [];
         for (let i = 0; i < length2; i++) {
