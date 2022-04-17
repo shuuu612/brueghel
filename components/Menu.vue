@@ -39,6 +39,16 @@
             <img class="image" :style="getImageStyle" :src="image" alt="" />
             <div class="mark" :style="getMarkStyle"></div>
           </div>
+          <div class="clear-button">
+            <Button
+            text="初期値に戻す"
+            font-size="small"
+            width="120px"
+            height="23px"
+            type="gray"
+            @click="clearSetting"
+            />
+          </div>
         </div>
         <div class="setting-area">
           <div class="setting-content">
@@ -82,10 +92,11 @@
           </div>
         </div>
       </div>
-      <div class="footer"></div>
-      <div class="button-outer">
-        <Button text="キャンセル" width="120px" height="32px" type="white" :style="{ marginRight: '14px' }" @click="cancel" />
-        <Button text="保存" width="120px" height="32px" type="purple" :disabled="getDisabled" @click="decision" />
+      <div class="footer">
+        <div class="button-outer">
+          <Button text="キャンセル" width="120px" height="32px" type="white" :style="{ marginRight: '14px' }" @click="cancel" />
+          <Button text="保存" width="120px" height="32px" type="purple" :disabled="getDisabled" @click="decision" />
+        </div>
       </div>
     </div>
   </div>
@@ -176,8 +187,6 @@ export default {
   },
   data() {
     return {
-      formatChange: false,
-      resizeChange: false,
       initialized: false,
       lossless: ['webp', 'avif', 'heif'],
       optimization: ['jpeg', 'webp', 'avif'],
@@ -203,7 +212,16 @@ export default {
       return this.open && this.uniqueIndex === this.selectedIndex && this.uniqueIndex2 === this.selectedIndex2;
     },
     getDisabled() {
-      return !(this.formatChange || this.resizeChange);
+      return !(
+        this.initialized === true &&
+        (this.data.format !== this.format ||
+          this.data.formatLevel !== this.formatLevel ||
+          this.data.width !== this.width ||
+          this.data.height !== this.height ||
+          this.data.fit !== this.fit ||
+          this.data.position !== this.position ||
+          this.data.background !== this.background)
+      );
     },
     getSelectedFormat() {
       return function (key) {
@@ -441,9 +459,6 @@ export default {
       // 初期値をセット
       this.initialSet();
 
-      // 変更済みとする
-      this.formatChange = true;
-
       // 選択した値をセット
       this.data.format = format;
       this.data.formatLevel = this.initialFormatLevel();
@@ -473,9 +488,6 @@ export default {
 
       // 初期値をセット
       this.initialSet();
-
-      // 変更済みとする
-      this.formatChange = true;
 
       // 選択した値をセット
       this.data.formatLevel = formatLevel;
@@ -526,8 +538,6 @@ export default {
       this.clear();
     },
     clear() {
-      this.formatChange = false;
-      this.resizeChange = false;
       this.initialized = false;
       /* this.autoAspectRatio = true; */
       this.selectedTab = 'format';
@@ -553,19 +563,10 @@ export default {
       // ローカルデータに設定
       this.data.width = this.pendingWidth;
       this.data.height = this.pendingHeight;
-
-      // 変更済みとする
-      this.resizeChange = true;
     },
-    changeColor() {
-      // 変更済みとする
-      this.resizeChange = true;
-    },
+    changeColor() {},
     clickFit(key) {
       this.data.fit = key;
-
-      // 変更済みとする
-      this.resizeChange = true;
     },
     clickPosition(key) {
       if (this.data.position === key) {
@@ -573,14 +574,12 @@ export default {
       } else {
         this.data.position = key;
       }
-
-      // 変更済みとする
-      this.resizeChange = true;
     },
     clickSwitch(data) {
-      this.autoAspectRatio = data;
-      console.log(this.autoAspectRatio);
-      if (data) this.changeSize('width');
+      this.autoAspectRatio = !data;
+
+      // ONになった時はアスペクト比の調整を行う
+      if (this.autoAspectRatio) this.changeSize('width');
     },
     adjustAspectRatio(base) {
       // アスペクト比を維持フラグがオフの場合は実行しない
@@ -612,6 +611,16 @@ export default {
         this.degitOver = false;
       }
     },
+    clearSetting() {
+      this.autoAspectRatio = true;
+      this.data.width = this.originalWidth;
+      this.data.height = this.originalHeight;
+      this.data.fit = 'cover';
+      this.data.position = 'center';
+      this.data.background = '#000000';
+      this.pendingWidth = this.originalWidth;
+      this.pendingHeight = this.originalHeight;
+    },
   },
 };
 </script>
@@ -624,7 +633,6 @@ export default {
   position: fixed;
   top: 0;
   left: 0;
-
   width: 100vw;
   height: 100vh;
 }
@@ -632,10 +640,8 @@ export default {
   position: absolute;
   top: 50px;
   right: 0;
-
   width: 700px;
   height: 600px;
-
   border: 1px var(--gray2) solid;
   border-radius: 10px;
   background-color: var(--white);
@@ -644,22 +650,18 @@ export default {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-
+  padding: 0 24px;
   width: 100%;
   height: 50px;
-  padding: 0 24px;
-
   border-bottom: 1px var(--gray3) solid;
 }
 .tab-buttons {
   display: flex;
 }
 .tab-button {
-  font-weight: 400;
-
   position: relative;
-
   color: var(--gray8);
+  font-weight: 400;
   &:not(:first-of-type) {
     margin-left: 20px;
   }
@@ -668,13 +670,10 @@ export default {
       position: absolute;
       bottom: -4px;
       left: 0;
-
       width: 100%;
       height: 2px;
-
-      content: '';
-
       background-color: var(--color4);
+      content: '';
     }
   }
 }
@@ -682,16 +681,13 @@ export default {
   display: flex;
   align-items: flex-start;
   justify-content: center;
-
   height: calc(100% - 110px);
 }
 .lists {
   height: 100%;
-
   list-style: none;
   &.main {
     width: 20%;
-
     border-right: 1px var(--gray3) solid;
   }
   &.sub {
@@ -699,9 +695,10 @@ export default {
   }
 }
 .image-area {
+  position: relative;
+  padding: 30px 20px;
   width: 57%;
   height: 100%;
-  padding: 30px 20px;
 }
 .image-outer {
   position: relative;
@@ -714,9 +711,9 @@ export default {
 }
 
 .setting-area {
+  padding: 30px 20px;
   width: 43%;
   height: 100%;
-  padding: 30px 20px;
 }
 .setting-content {
   &:not(:first-child) {
@@ -727,44 +724,33 @@ export default {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-
   margin-bottom: 10px;
 }
 
 .title {
-  font-weight: 400;
-
   display: block;
-
   margin-bottom: 4px;
-
-  pointer-events: none;
-
   color: var(--gray8);
+  font-weight: 400;
+  pointer-events: none;
 }
 .input {
-  font-weight: 400;
-
-  width: 100px;
   padding: 3px 6px;
-
-  color: var(--gray8);
+  width: 100px;
   border: 1px var(--gray5) solid;
   border-radius: 6px;
+  color: var(--gray8);
+  font-weight: 400;
 }
 .multiplication {
-  font-weight: 400;
-
   margin: 20px 8px 0;
-
   color: var(--gray8);
+  font-weight: 400;
 }
 .attention {
-  font-size: var(--font-size-xs);
-
   margin-bottom: 4px;
-
   color: var(--red);
+  font-size: var(--font-size-xs);
 }
 .switch-outer {
   display: flex;
@@ -772,12 +758,10 @@ export default {
   justify-content: flex-start;
 }
 .switch-title {
-  font-size: var(--font-size-xs);
-  font-weight: 400;
-
   margin-right: 10px;
-
   color: var(--gray8);
+  font-weight: 400;
+  font-size: var(--font-size-xs);
 }
 
 .buttons {
@@ -785,21 +769,25 @@ export default {
   align-items: center;
   justify-content: flex-start;
 }
+.clear-button {
+  position: absolute;
+  bottom: 14px;
+  left: 20px;
+}
 
 .footer {
+  padding: 0 24px;
   width: 100%;
   height: 60px;
-  padding: 0 24px;
-
   border-top: 1px var(--gray3) solid;
 }
 .button-outer {
   position: absolute;
   right: 18px;
   bottom: 14px;
-
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
 </style>

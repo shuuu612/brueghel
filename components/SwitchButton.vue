@@ -17,11 +17,7 @@ export default {
   },
   computed: {
     getSwitchOn() {
-      if (this.insideOn === undefined) {
-        return this.on;
-      } else {
-        return this.insideOn;
-      }
+      return this.on;
     },
   },
   created() {},
@@ -29,13 +25,7 @@ export default {
   beforeDestroy() {},
   methods: {
     click() {
-      if (this.insideOn === undefined) {
-        this.insideOn = !this.on;
-      } else {
-        this.insideOn = !this.insideOn;
-      }
-
-      this.$emit('click', this.insideOn);
+      this.$emit('click', this.on);
     },
   },
 };
@@ -44,27 +34,21 @@ export default {
 <style lang="scss" scoped>
 .button {
   position: relative;
-
   width: 32px;
   height: 16px;
-
-  transition: background-color .2s;
-
   border-radius: 50px;
   background-color: var(--gray3);
+  transition: background-color .2s;
   &::before {
     position: absolute;
     top: 2px;
     left: 2px;
-
     width: 12px;
     height: 12px;
-
-    content: '';
-    transition: left .2s;
-
     border-radius: 20px;
     background-color: var(--white);
+    content: '';
+    transition: left .2s;
   }
   &.on {
     background-color: var(--color4);
