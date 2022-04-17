@@ -10,7 +10,9 @@
         <div v-for="(files, index) in getSettingFiles" :key="index" class="content">
           <div class="image-area">
             <div class="image-outer" :style="getImageStyle(index)">
-              <img class="image" :style="getImageStyle(index)" :src="files[0].originalInfo + files[0].originalImage" alt="">
+              <button :disabled="!getMultiImage" class="image-button" @click="openImageList">
+                <img class="image" :src="files[0].originalInfo + files[0].originalImage" alt="">
+              </button>
               <svg v-if="getMultiImage" class="multi-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 350.03 294.47" fill="#231815">
                 <path d="M331.53,67.78h-35.1v20h33.61v186.69H87.78v-33.61h-20v35.1c0,10.2,8.3,18.51,18.51,18.51h245.24c10.2,0,18.51-8.3,18.51-18.51V86.29c0-10.21-8.3-18.51-18.51-18.51Z"/>
                 <rect width="282.25" height="226.69" rx="18.51" ry="18.51"/>
@@ -164,7 +166,7 @@
         <p class="text margin-top-20">対応ファイル：JPEG / PNG / WebP / GIF / TIFF / AVIF / HEIF / BMP</p>
         <input id="upload" class="upload" type="file" :accept="supportFormat" multiple @change="inputFile" />
       </div>
-      <div class="setting-bar" @click="closeMenu">
+      <div class="setting-bar" @click="clickSettingBar">
         <div class="setting-bar-inner">
           <div class="setting-bar-buttons">
             <Button
@@ -186,6 +188,12 @@
           </div>
         </div>
       </div>
+      <ImageList
+      :images="settingFiles"
+      :open="isOpenImageList"
+      @close="closeImageList"
+      @delete="deleteImage"
+      />
     </main>
   </div>
 </template>
@@ -195,10 +203,10 @@ export default {
   data() {
     return {
       isEnter: false,
+      isOpenMenu: false,
+      isOpenImageList: false,
       firstFiles: [],
       settingFiles: [],
-      outputFiles: [],
-      isOpenMenu: false,
       selectedIndex: 0,
       selectedIndex2: 0,
       allInOneSetting: false,
@@ -814,11 +822,11 @@ export default {
       }
     },
     deleteImage(index) {
-      if (this.allInOneSetting) {
+      if (this.allInOneSetting && !this.isOpenImageList) {
         // 同一設定中のため、すべてのファイルを操作
         this.settingFiles.length = 0;
         this.settingFiles.splice();
-      } else if (!this.allInOneSetting) {
+      } else {
         this.settingFiles.splice(index, 1);
       }
     },
@@ -995,6 +1003,16 @@ export default {
         }
       }
     },
+    clickSettingBar() {
+      if (this.isOpenMenu) this.closeMenu();
+      else if (this.isOpenImageList) this.closeImageList();
+    },
+    openImageList() {
+      this.isOpenImageList = true;
+    },
+    closeImageList() {
+      this.isOpenImageList = false;
+    },
   },
 };
 </script>
@@ -1082,12 +1100,17 @@ export default {
   height: 200px;
   border-radius: 8px;
   background-color: var(--white);
-  .image {
-    /* width: 100%; */
-  }
 }
 .image-outer {
   position: relative;
+}
+.image-button {
+  width: 100%;
+  height: 100%;
+  .image {
+    width: 100%;
+    height: 100%;
+  }
 }
 
 .multi-icon {
@@ -1300,4 +1323,5 @@ export default {
   align-items: center;
   justify-content: center;
 }
+
 </style>
