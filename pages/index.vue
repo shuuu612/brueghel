@@ -175,7 +175,7 @@
             height="40px"
             type="white"
             :style="{marginRight: '20px'}"
-            @click="allSubmit"
+            @click="allFileSubmit"
             />
             <Button
             text="一括ダウンロード"
@@ -183,7 +183,7 @@
             height="40px"
             type="purple"
             :disabled="getDisabledAllDownloadButton"
-            @click="allDownload"
+            @click="allFileDownload"
             />
           </div>
         </div>
@@ -502,18 +502,25 @@ export default {
         return 0;
       }
     },
-    async allSubmit() {
+    manageSubmit(index) {
+      if (this.allInOneSetting) {
+        this.allFileSubmit();
+      } else {
+        this.singleFileSubmit(index);
+      }
+    },
+    async allFileSubmit() {
       // 変換中フラグ（ALL）をON
       this.convertingAll = true;
 
       const length = this.settingFiles.length;
       for (let i = 0; i < length; i++) {
-        await this.manageSubmit(i);
+        await this.singleFileSubmit(i);
         // 変換中フラグをOFF
         if (i === length - 1) this.convertingAll = false;
       }
     },
-    async manageSubmit(index) {
+    async singleFileSubmit(index) {
       // 変換中フラグをON
       this.converting = true;
 
@@ -631,7 +638,14 @@ export default {
         alert('送信に失敗しました。');
       }
     },
-    allDownload() {
+    manageDownload(index) {
+      if (this.allInOneSetting) {
+        this.allFileDownload();
+      } else {
+        this.singleFileDownload(index);
+      }
+    },
+    allFileDownload() {
       // ダウンロードファイル数を算出
       const length1 = this.settingFiles.length;
       let count = 0;
@@ -648,12 +662,12 @@ export default {
 
       // ファイルが複数ある場合はzip形式で、１つの場合はファイル形式でダウンロード
       if (count > 1) {
-        this.downloadFolderAll();
+        this.downloadAllFolder();
       } else if (count === 1) {
         this.downloadFile(index);
       }
     },
-    manageDownload(index) {
+    singleFileDownload(index) {
       // ダウンロードファイル数を算出
       const file = this.settingFiles[index].filter((item) => item.outputImage);
       const length = file.length;
@@ -665,7 +679,7 @@ export default {
         this.downloadFile(index);
       }
     },
-    async downloadFolderAll() {
+    async downloadAllFolder() {
       // JSZipインスタンスの作成
       const zip = new JSZip();
 
