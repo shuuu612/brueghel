@@ -1170,7 +1170,7 @@ export default {
 }
 .setting-arrow {
   margin: 0 16px;
-  width: 40px;
+  width: 32px;
 }
 
 .setting-button {
