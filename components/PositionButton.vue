@@ -21,62 +21,63 @@ export default {
     },
   },
   data() {
-    return {
-    };
+    return {};
   },
   computed: {
     getStyle() {
       let num;
-      if(this.type === 'top') num = -90;
-      else if(this.type === 'right') num = 0;
-      else if(this.type === 'bottom') num = 90;
-      else if(this.type === 'left') num = 180;
+      if (this.type === 'top') num = -90;
+      else if (this.type === 'right') num = 0;
+      else if (this.type === 'bottom') num = 90;
+      else if (this.type === 'left') num = 180;
       return {
-        transform: `rotate(${num}deg)`
-      }
-    }
+        transform: `rotate(${num}deg)`,
+      };
+    },
   },
-  created() {
-  },
-  mounted() {
-    
-  },
-  beforeDestroy() {
-  },
+  created() {},
+  mounted() {},
+  beforeDestroy() {},
   methods: {
     click() {
       this.$emit('click');
-    }
+    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
 .button {
-  border-radius: 5px;
-  font-size: var(--font-size-xs);
-  font-weight: 400;
   display: flex;
   align-items: center;
-  justify-content: center;
   flex-direction: column;
-  border: 1px var(--gray5) solid;
-  color: var(--gray7);
+  justify-content: center;
+  padding: 5px;
   width: 50px;
   height: 50px;
-  padding: 5px;
+  border: 1px var(--gray5) solid;
+  border-radius: 5px;
+  color: var(--gray7);
+  font-weight: 400;
+  font-size: var(--font-size-xs);
+
+  @include hover() {
+    background-color: var(--color7);
+  }
   &:not(:first-child) {
     margin-left: 10px;
   }
   &.selected {
-    background-color: var(--color5);
+    background-color: var(--color1);
   }
 }
 .image {
-  fill: var(--gray7);
   width: 24px;
+
+  fill: var(--gray7);
 }
 .text {
   margin-top: 4px;
 }
+
 </style>
