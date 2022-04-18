@@ -112,6 +112,9 @@
               @cancel="closeMenu"
               @disision="setReceiveData"
               />
+              <div v-if="getSuccess(index, index2)" class="success-message">
+                <p class="success-text">成功</p>
+              </div>
             </div>
             <button class="add-button" @click="addSetting(index)">
               <svg class="add-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 207.73 207.73" fill="#231815">
@@ -168,6 +171,16 @@
       </div>
       <div class="setting-bar" @click="clickSettingBar">
         <div class="setting-bar-inner">
+          <div v-if="getProgressDisplay" class="progress-bar">
+            <p v-if="scheduledNumber > 0 && scheduledNumber !== completedNumber" class="text">変換中</p>
+            <p v-else class="text">完了</p>
+            <div class="progress-outer">
+              <span class="progress back"></span>
+              <span class="progress front" :style="getProgressStyle"></span>
+            </div>
+            <p class="percent">{{getProgressPercent}}</p>
+            <p class="subject">{{completedNumber + '/' + scheduledNumber}}</p>
+          </div>
           <div class="setting-bar-buttons">
             <Button
             text="一括変換"
@@ -212,6 +225,8 @@ export default {
       allInOneSetting: false,
       converting: false,
       convertingAll: false,
+      scheduledNumber: 0,
+      completedNumber: 0,
       supportFormat: [
         'image/jpeg',
         'image/png',
@@ -320,6 +335,27 @@ export default {
     },
     getMultiImage() {
       return Object.keys(this.settingFiles).length > 1 && this.allInOneSetting;
+    },
+    getSuccess() {
+      return function (index, index2) {
+        if (this.allInOneSetting) {
+          const length = this.settingFiles.length;
+          return this.settingFiles[length - 1][index2].outputImage;
+        } else {
+          return this.settingFiles[index][index2].outputImage;
+        }
+      };
+    },
+    getProgressStyle() {
+      const parcent = Math.round((this.completedNumber / this.scheduledNumber) * 100);
+      return { width: `${parcent}%` };
+    },
+    getProgressPercent() {
+      const parcent = Math.round((this.completedNumber / this.scheduledNumber) * 100);
+      return `${parcent}%`;
+    },
+    getProgressDisplay() {
+      return (this.convertingAll && !this.converting) || this.scheduledNumber > 0 || this.completedNumber > 0;
     },
   },
   watch: {
@@ -512,27 +548,59 @@ export default {
     async allFileSubmit() {
       // 変換中フラグ（ALL）をON
       this.convertingAll = true;
+      this.scheduledNumber = 0;
+      this.completedNumber = 0;
 
       const length = this.settingFiles.length;
+
+      // 変換ファイルの合計を計算
+      let total = 0;
+      for (let i = 0; i < length; i++) {
+        total += this.settingFiles[i].length;
+      }
+      this.scheduledNumber = total;
+
       for (let i = 0; i < length; i++) {
         await this.singleFileSubmit(i);
+
         // 変換中フラグをOFF
-        if (i === length - 1) this.convertingAll = false;
+        if (i === length - 1) {
+          this.convertingAll = false;
+        }
       }
     },
     async singleFileSubmit(index) {
       // 変換中フラグをON
       this.converting = true;
+      if (!this.convertingAll) {
+        this.scheduledNumber = 0;
+        this.completedNumber = 0;
+      }
 
       const length = this.settingFiles[index].length;
       for (let i = 0; i < length; i++) {
         await this.submit(index, i);
 
         // 変換中フラグをOFF
-        if (i === length - 1) this.converting = false;
+        if (i === length - 1) {
+          this.converting = false;
+          if (!this.convertingAll) {
+            this.scheduledNumber = 0;
+            this.completedNumber = 0;
+          }
+        }
       }
     },
     async submit(index, index2) {
+      // 変換済みの場合は送信しない
+      if (this.settingFiles[index][index2].outputImage) {
+        // 変換完了数をカウントアップ
+        if (this.convertingAll) {
+          this.completedNumber++;
+        }
+        return;
+      }
+
       // 送信データを作成
       const data = {
         image: this.settingFiles[index][index2].originalImage,
@@ -634,6 +702,11 @@ export default {
         this.settingFiles[index][index2].outputImageSize = file.size;
         this.settingFiles[index][index2].outputFile = file;
         this.settingFiles.splice();
+
+        // 変換完了数をカウントアップ
+        if (this.convertingAll) {
+          this.completedNumber++;
+        }
       } else {
         alert('送信に失敗しました。');
       }
@@ -1130,7 +1203,7 @@ export default {
   align-items: flex-start;
   justify-content: flex-start;
   margin-bottom: 20px;
-  padding: 10px 180px 10px 230px;
+  padding: 10px 140px 10px 230px;
   min-height: 224px;
   width: 100%;
   border: 2px var(--color3) solid;
@@ -1189,7 +1262,7 @@ export default {
   align-items: center;
   justify-content: center;
   padding: 8px 18px;
-  min-width: 726px;
+  width: 700px;
   border-radius: 8px;
   background-color: var(--white);
   &:not(:first-child) {
@@ -1273,6 +1346,18 @@ export default {
 
   fill: var(--gray7);
 }
+.success-message {
+  position: absolute;
+  top: 0;
+  left: calc(100% + 8px);
+  display: flex;
+  align-items: center;
+  width: 60px;
+  height: 100%;
+}
+.success-text {
+  color: var(--green);
+}
 
 .button-outer {
   position: absolute;
@@ -1282,7 +1367,7 @@ export default {
   align-items: center;
   flex-direction: column;
   justify-content: center;
-  width: 150px;
+  width: 120px;
   height: 144px;
 }
 .add-button {
@@ -1380,6 +1465,51 @@ export default {
   border-top: 2px var(--color1) solid;
   border-radius: 0 0 10px 10px;
   background-color: var(--white);
+}
+.progress-bar {
+  position: absolute;
+  top: 28px;
+  left: 300px;
+  display: flex;
+  align-items: center;
+  .text {
+    margin-right: 6px;
+    width: 40px;
+    color: var(--gray7);
+    text-align: right;
+  }
+  .progress-outer {
+    position: relative;
+    margin-top: 2px;
+    margin-right: 4px;
+    width: 400px;
+    height: 5px;
+    .progress {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      border-radius: 5px;
+    }
+
+    .back {
+      width: 100%;
+      background-color: var(--gray1);
+    }
+    .front {
+      background-color: var(--color4);
+    }
+  }
+  .percent {
+    margin-right: 12px;
+    width: 34px;
+    color: var(--gray7);
+    text-align: right;
+  }
+  .subject {
+    width: 50px;
+    color: var(--gray7);
+  }
 }
 .setting-bar-buttons {
   position: absolute;
