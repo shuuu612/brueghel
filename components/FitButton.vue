@@ -18,46 +18,43 @@ export default {
     },
   },
   data() {
-    return {
-    };
+    return {};
   },
-  computed: {
-
-  },
-  created() {
-  },
-  mounted() {
-    
-  },
-  beforeDestroy() {
-  },
+  computed: {},
+  created() {},
+  mounted() {},
+  beforeDestroy() {},
   methods: {
     click() {
       this.$emit('click');
-    }
+    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
 .button {
-  border-radius: 5px;
-  font-size: var(--font-size-sm);
-  font-weight: 400;
   display: flex;
   align-items: center;
-  justify-content: center;
   flex-direction: column;
-  border: 1px var(--gray5) solid;
-  color: var(--gray8);
+  justify-content: center;
+  padding: 5px;
   width: 70px;
   height: 50px;
-  padding: 5px;
+  border: 1px var(--gray5) solid;
+  border-radius: 5px;
+  color: var(--gray8);
+  font-weight: 400;
+  font-size: var(--font-size-sm);
+
+  @include hover() {
+    background-color: var(--color1);
+  }
   &:not(:first-child) {
     margin-left: 10px;
   }
   &.selected {
-    background-color: var(--color5);
+    background-color: var(--color1);
   }
 }
 

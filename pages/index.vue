@@ -1250,8 +1250,14 @@ export default {
   align-items: center;
   justify-content: center;
   margin-left: 20px;
+  padding: 5px;
   width: 28px;
   height: 28px;
+  border-radius: 5px;
+
+  @include hover() {
+    background-color: var(--gray0);
+  }
   &::before {
     position: absolute;
     top: -1px;
@@ -1290,12 +1296,20 @@ export default {
   height: 50px;
   border-radius: 50px;
   background-color: var(--white);
-}
-.add-icon {
-  width: 20px;
 
-  fill: var(--color3);
+  @include hover() {
+    background-color: var(--color9);
+    .add-icon {
+      fill: var(--color10);
+    }
+  }
+  .add-icon {
+    width: 20px;
+
+    fill: var(--color3);
+  }
 }
+
 .drop-area {
   display: flex;
   align-items: center;
@@ -1338,6 +1352,10 @@ export default {
   color: var(--white);
   font-size: var(--font-size-md);
   cursor: pointer;
+
+  @include hover() {
+    background-color: var(--color8);
+  }
 }
 .upload {
   display: none;

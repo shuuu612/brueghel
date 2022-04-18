@@ -37,23 +37,16 @@ export default {
     },
   },
   data() {
-    return {
-    };
+    return {};
   },
-  computed: {
-
-  },
-  created() {
-  },
-  mounted() {
-
-  },
-  beforeDestroy() {
-  },
+  computed: {},
+  created() {},
+  mounted() {},
+  beforeDestroy() {},
   methods: {
     click() {
       this.$emit('click', this.text);
-    }
+    },
   },
 };
 </script>
@@ -66,19 +59,21 @@ export default {
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  padding: 14px;
   width: 100%;
   height: 100%;
-  padding: 14px;
-  &.selected {
+
+  @include hover() {
     background-color: var(--color1);
   }
-  @include hover() {
+  &.selected {
     background-color: var(--color1);
   }
 }
 .icon {
-  width: 12px;
   min-width: 12px;
+  width: 12px;
+
   fill: var(--gray3);
 }
 .text-outer {
@@ -87,16 +82,17 @@ export default {
   justify-content: flex-start;
 }
 .text {
-  color: var(--gray8);
-  font-weight: 400;
   margin-left: 8px;
-  width: 100px;
   min-width: 100px;
+  width: 100px;
+  color: var(--gray8);
   text-align: left;
+  font-weight: 400;
 }
 .comment {
   color: var(--gray8);
-  font-weight: 400;
   text-align: left;
+  font-weight: 400;
 }
+
 </style>

@@ -79,10 +79,21 @@ export default {
     border: 1px var(--color3) solid;
     background-color: var(--white);
     color: var(--gray7);
+    transition: border .2s, color .2s;
+
+    @include hover() {
+      border: 1px var(--color4) solid;
+      color: var(--color4);
+    }
   }
   &.purple {
     background-color: var(--color4);
     color: var(--white);
+    transition: background-color .15s;
+
+    @include hover() {
+      background-color: var(--color8);
+    }
     &.disabled {
       background-color: var(--gray4);
     }
@@ -91,6 +102,11 @@ export default {
     border: 1px var(--gray4) solid;
     background-color: var(--white);
     color: var(--gray4);
+
+    @include hover() {
+      border: 1px var(--gray6) solid;
+      color: var(--gray6);
+    }
   }
   &.small {
     font-size: var(--font-size-xs);
