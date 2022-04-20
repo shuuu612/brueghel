@@ -657,7 +657,7 @@ export default {
         await this.$axios
           .post('https://0nw778k56a.execute-api.ap-northeast-1.amazonaws.com/dev/v1/image-converter', data, {
             headers: {
-              'x-api-key': 'RSzNuTJ85l7gjssXcAOB275XV6gALdTI9AQ3Hgab',
+              'x-api-key': process.env.API_KEY,
             },
           })
           .then((res) => {
@@ -673,7 +673,7 @@ export default {
         await this.$axios
           .post('/dev/v1/image-converter', data, {
             headers: {
-              'x-api-key': 'RSzNuTJ85l7gjssXcAOB275XV6gALdTI9AQ3Hgab',
+              'x-api-key': process.env.API_KEY,
             },
           })
           .then((res) => {
@@ -1555,7 +1555,7 @@ export default {
       background-color: var(--color4);
     }
     .converting {
-      transition: width 0.5s;
+      transition: width .5s;
     }
   }
   .percent {
@@ -1578,4 +1578,5 @@ export default {
   align-items: center;
   justify-content: center;
 }
+
 </style>
