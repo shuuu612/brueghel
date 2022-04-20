@@ -286,17 +286,15 @@ export default {
     },
     getDisabledAllDownloadButton() {
       const length1 = this.settingFiles.length;
-      let count1 = 0;
+      let count = 0;
       for (let i = 0; i < length1; i++) {
         const length2 = this.settingFiles[i].length;
-        let count2 = 0;
         for (let j = 0; j < length2; j++) {
-          if (this.settingFiles[i][j].outputImage) count2++;
+          if (this.settingFiles[i][j].outputImage) count++;
         }
-        if (count2 > 0) count1++;
       }
 
-      return !(count1 > 0 && !this.converting && !this.convertingAll);
+      return !(count > 0 && !this.converting && !this.convertingAll);
     },
     getFormatName() {
       return function (key, index = 0, index2 = 0) {
@@ -382,11 +380,10 @@ export default {
     async inputFile(event) {
       this.isEnter = false;
       // ファイル選択またはドラッグ&ドロップされたファイルを取得
-      const inputFiles = event.target.files ? event.target.files : event.dataTransfer.files;
-      const files = [...inputFiles];
+      const inputFiles = event.target.files ? [...event.target.files] : [...event.dataTransfer.files];
 
       // ファイル形式のチェック
-      const imageFiles = files.filter((item) => this.supportFormat.includes(item.type));
+      const imageFiles = inputFiles.filter((item) => this.supportFormat.includes(item.type));
 
       // ファイルサイズのチェック(4.2MBまで許可)
       const rightSizeFiles = imageFiles.filter((item) => item.size < 4200000);
@@ -397,7 +394,7 @@ export default {
       // アップロードのエラーメッセージを表示
       if (imageFiles.length === 0) {
         this.errorMessage(1);
-      } else if (imageFiles.length < files.length) {
+      } else if (imageFiles.length < inputFiles.length) {
         this.errorMessage(2);
       } else if (rightSizeFiles.length < imageFiles.length) {
         this.errorMessage(3);
@@ -423,17 +420,14 @@ export default {
         if (error) continue;
 
         // フォーマットを取得
-        const format1 = imageBase64;
-        const format2 = format1.substr(0, format1.indexOf(';'));
-        const format = format2.substr(format2.indexOf('/') + 1);
+        const format1 = imageBase64.substr(0, imageBase64.indexOf(';'));
+        const format = format1.substr(format1.indexOf('/') + 1);
 
         // 画像（情報部）を取得
-        const info1 = imageBase64;
-        const info = info1.substr(0, info1.indexOf('base64,') + 7);
+        const info = imageBase64.substr(0, imageBase64.indexOf('base64,') + 7);
 
         // 画像（データ部）を取得
-        const image1 = imageBase64;
-        const image = image1.substr(image1.indexOf('base64,') + 7);
+        const image = imageBase64.substr(imageBase64.indexOf('base64,') + 7);
 
         // 画像サイズを取得
         let width;
