@@ -73,7 +73,7 @@
           </div>
           <div class="setting-content color">
             <label class="title" for="color" disabled>背景色</label>
-            <input id="color" v-model="data.background" class="input" type="color" @change="changeColor" />
+            <input id="color" v-model="data.background" class="input" type="color"/>
           </div>
         </div>
       </div>
@@ -772,4 +772,5 @@ export default {
   align-items: center;
   justify-content: center;
 }
+
 </style>
