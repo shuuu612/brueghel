@@ -183,8 +183,6 @@ export default {
   data() {
     return {
       initialized: false,
-      lossless: ['webp', 'avif', 'heif'],
-      optimization: ['jpeg', 'webp', 'avif'],
       selectedTab: 'format',
       pendingWidth: 0,
       pendingHeight: 0,
@@ -243,10 +241,10 @@ export default {
       };
     },
     getOptimizationMode() {
-      return this.optimization.includes(this.originalFormat);
+      return this.$OPTIMIZATION.includes(this.originalFormat);
     },
     getLosslessMode() {
-      return this.lossless.includes(this.selectedFormat());
+      return this.$LOSSLESS.includes(this.selectedFormat());
     },
     getSelectedMode() {
       return !(this.selectedFormat() === 'png' || this.selectedFormat() === 'gif');
@@ -480,7 +478,7 @@ export default {
       const format = this.selectedFormat();
       if (format === 'original') return 'none';
       if (format === 'png' || format === 'gif') return 'middle';
-      else if (this.lossless.includes(format)) return 'middle';
+      else if (this.$LOSSLESS.includes(format)) return 'middle';
       else return 'middle';
     },
     initialSet() {
