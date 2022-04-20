@@ -176,7 +176,7 @@
             <p v-else class="text">完了</p>
             <div class="progress-outer">
               <span class="progress back"></span>
-              <span class="progress front" :style="getProgressStyle"></span>
+              <span class="progress front" :class="getConverting" :style="getProgressStyle"></span>
             </div>
             <p class="percent">{{getProgressPercent}}</p>
             <p class="subject">{{completedNumber + '/' + scheduledNumber}}</p>
@@ -225,6 +225,7 @@ export default {
       allInOneSetting: false,
       converting: false,
       convertingAll: false,
+      alreadySubmit: false,
       isDisplayProgressBar: false,
       scheduledNumber: 0,
       completedNumber: 0,
@@ -355,6 +356,9 @@ export default {
     },
     getProgressDisplay() {
       return this.isDisplayProgressBar;
+    },
+    getConverting() {
+      return { converting: this.alreadySubmit };
     },
   },
   watch: {
@@ -591,6 +595,7 @@ export default {
       this.scheduledNumber = 0;
       this.completedNumber = 0;
       this.isDisplayProgressBar = true;
+      this.alreadySubmit = false;
 
       // 画像の枚数を取得
       const length = this.settingFiles.length;
@@ -622,6 +627,7 @@ export default {
         this.scheduledNumber = 0;
         this.completedNumber = 0;
         this.isDisplayProgressBar = true;
+        this.alreadySubmit = false;
 
         // 変換ファイルの合計を計算
         this.scheduledNumber = this.settingFiles[index].length;
@@ -702,6 +708,8 @@ export default {
             success = false;
           });
       }
+      // 送信済みフラグをON
+      this.alreadySubmit = true;
       if (success) {
         // サーバー側でのエラーを検証
         if (response.data.errorMessage) {
@@ -1567,6 +1575,9 @@ export default {
     }
     .front {
       background-color: var(--color4);
+    }
+    .converting {
+      transition: width 0.5s;
     }
   }
   .percent {
