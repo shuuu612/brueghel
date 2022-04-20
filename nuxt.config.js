@@ -78,4 +78,6 @@ export default {
   generate: {
     interval: 300,
   },
+
+  loading: false,
 }
