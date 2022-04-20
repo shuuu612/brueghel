@@ -15,22 +15,17 @@
           <List text="PNG" padding="14px" :selected="getSelectedFormat('PNG')" @click="clickFormat" />
           <List text="GIF" padding="14px" :selected="getSelectedFormat('GIF')" @click="clickFormat" />
           <List text="WebP" padding="14px" :selected="getSelectedFormat('WebP')" @click="clickFormat" />
-          <!-- <List text="TIFF" padding="14px" :selected="getSelectedFormat('TIFF')" @click="clickFormat"/> -->
           <List text="AVIF" padding="14px" :selected="getSelectedFormat('AVIF')" @click="clickFormat" />
-          <!-- <List text="HEIF" padding="14px" :selected="getSelectedFormat('HEIF')" @click="clickFormat"/> -->
         </ul>
         <ul v-if="selectedFormat() === 'original'" class="lists sub">
           <List text="オリジナル" comment="何もしない" padding="22px" :selected="getSelectedFormatLevel('オリジナル')" @click="clickLevel" />
-          <List v-if="getOptimizationMode" text="最適化" comment="画像の最適化を行います。ファイルサイズの削減が期待できます。" padding="22px" :selected="getSelectedFormatLevel('最適化')" @click="clickLevel" />
+          <List v-if="getOptimizationMode" text="最適化" comment="ファイルサイズの削減が期待できます。" padding="22px" :selected="getSelectedFormatLevel('最適化')" @click="clickLevel" />
         </ul>
-        <!-- <ul v-else-if="selectedFormat() === 'png' || selectedFormat() === 'gif'" class="lists sub">
-          <List text="自動" padding="22px" :selected="getSelectedFormatLevel('自動')" @click="clickLevel"/>
-        </ul> -->
         <ul v-else class="lists sub">
-          <List text="自動" comment="人の目にはわからない程度の圧縮でファイルサイズを削減します。" padding="22px" :selected="getSelectedFormatLevel('自動')" @click="clickLevel" />
-          <List v-if="getSelectedMode" text="画質優先" comment="画質を優先します。ファイルサイズは大きくなります。" padding="22px" :selected="getSelectedFormatLevel('画質優先')" @click="clickLevel" />
-          <List v-if="getSelectedMode" text="サイズ優先" comment="ファイルサイズの削減を優先します。画質は低下します。" padding="22px" :selected="getSelectedFormatLevel('サイズ優先')" @click="clickLevel" />
-          <List v-if="getLosslessMode" text="ロスレス" comment="オリジナルのデータを損なわず変換します。（可逆圧縮）" padding="22px" :selected="getSelectedFormatLevel('ロスレス')" @click="clickLevel" />
+          <List v-if="getLosslessMode" text="ロスレス" comment="オリジナルのデータを損なうことなく変換できます。" padding="22px" :selected="getSelectedFormatLevel('ロスレス')" @click="clickLevel" />
+          <List v-if="getSelectedMode" text="高品質" comment="高画質、ファイルサイズ：大" padding="22px" :selected="getSelectedFormatLevel('高品質')" @click="clickLevel" />
+          <List text="標準品質" comment="デフォルト" padding="22px" :selected="getSelectedFormatLevel('標準品質')" @click="clickLevel" />
+          <List v-if="getSelectedMode" text="低品質" comment="低画質、ファイルサイズ：小" padding="22px" :selected="getSelectedFormatLevel('低品質')" @click="clickLevel" />
         </ul>
       </div>
       <div v-else class="content resize">
@@ -38,16 +33,6 @@
           <div class="image-outer" :style="getImageOuterStyle">
             <img class="image" :style="getImageStyle" :src="image" alt="" />
             <div class="mark" :style="getMarkStyle"></div>
-          </div>
-          <div class="clear-button">
-            <Button
-            text="初期値に戻す"
-            font-size="small"
-            width="120px"
-            height="23px"
-            type="gray"
-            @click="clearSetting"
-            />
           </div>
         </div>
         <div class="setting-area">
@@ -93,6 +78,16 @@
         </div>
       </div>
       <div class="footer">
+        <div class="clear-button">
+          <Button
+          text="初期値に戻す"
+          font-size="small"
+          width="120px"
+          height="23px"
+          type="gray"
+          @click="clearSetting"
+          />
+        </div>
         <div class="button-outer">
           <Button text="キャンセル" width="120px" height="32px" type="white" :style="{ marginRight: '14px' }" @click="cancel" />
           <Button text="保存" width="120px" height="32px" type="purple" :disabled="getDisabled" @click="decision" />
@@ -232,9 +227,7 @@ export default {
         else if (key === 'PNG') return state === 'png';
         else if (key === 'WebP') return state === 'webp';
         else if (key === 'GIF') return state === 'gif';
-        else if (key === 'TIFF') return state === 'tiff';
         else if (key === 'AVIF') return state === 'avif';
-        else if (key === 'HEIF') return state === 'heif';
       };
     },
     getSelectedFormatLevel() {
@@ -242,12 +235,11 @@ export default {
         const state = this.selectedFormatLevel();
 
         if (key === 'ロスレス') return state === '' || state === 'lossless';
-        else if (key === '画質優先') return state === 'high';
-        else if (key === '自動') return state === 'middle';
-        else if (key === 'サイズ優先') return state === 'low';
+        else if (key === '高品質') return state === 'high';
+        else if (key === '標準品質') return state === 'middle';
+        else if (key === '低品質') return state === 'low';
         else if (key === 'オリジナル') return state === 'none';
         else if (key === '最適化') return state === 'optimization';
-        /* else if(key === '自動') return state === 'auto'; */
       };
     },
     getOptimizationMode() {
@@ -312,7 +304,6 @@ export default {
           baseHeight = this.imageSize;
         }
         if (originalWidth * settingHeight === originalHeight * settingWidth) {
-          console.log('比率が同じ');
           return {
             width: `100%`,
             height: `100%`,
@@ -321,8 +312,6 @@ export default {
             backgroundColor: this.data.background,
           };
         } else if (originalWidth * settingHeight > originalHeight * settingWidth) {
-          console.log('幅を変更する');
-
           const width = baseWidth * (settingWidth / originalWidth / (settingHeight / originalHeight));
 
           return {
@@ -333,8 +322,6 @@ export default {
             backgroundColor: this.data.background,
           };
         } else {
-          console.log('高さを変更する');
-
           const height = baseHeight * (settingHeight / originalHeight / (settingWidth / originalWidth));
 
           return {
@@ -362,15 +349,12 @@ export default {
         baseHeight = this.imageSize;
       }
       if (originalWidth * settingHeight === originalHeight * settingWidth) {
-        console.log('比率が同じ');
         return {
           width: `100%`,
           height: `100%`,
           border: '1px red solid',
         };
       } else if (originalWidth * settingHeight > originalHeight * settingWidth) {
-        console.log('幅を変更する');
-
         const width = baseWidth * (settingWidth / originalWidth / (settingHeight / originalHeight));
         const margin = baseWidth - width;
 
@@ -396,8 +380,6 @@ export default {
           };
         }
       } else {
-        console.log('高さを変更する');
-
         const height = baseHeight * (settingHeight / originalHeight / (settingWidth / originalWidth));
         const margin = baseHeight - height;
 
@@ -422,6 +404,15 @@ export default {
             marginTop: `${margin / 2}px`,
           };
         }
+      }
+    },
+  },
+  watch: {
+    open(value) {
+      if (value) {
+        this.initialSet();
+      } else {
+        this.close();
       }
     },
   },
@@ -456,38 +447,31 @@ export default {
       // 選択中のボタンを押したらスルー
       if (this.selectedFormat() === format) return;
 
-      // 初期値をセット
-      this.initialSet();
-
-      // 選択した値をセット
+      // 選択したフォーマットをセット
       this.data.format = format;
+
+      // フォーマットレベルを初期値を設定
       this.data.formatLevel = this.initialFormatLevel();
-      console.log(this.data.format);
     },
     clickLevel(key) {
       // 書式を統一する
       const formatLevel =
         key === 'ロスレス'
           ? 'lossless'
-          : key === '画質優先'
+          : key === '高品質'
           ? 'high'
-          : key === '自動'
+          : key === '標準品質'
           ? 'middle'
-          : key === 'サイズ優先'
+          : key === '低品質'
           ? 'low'
           : key === 'オリジナル'
           ? 'none'
           : key === '最適化'
           ? 'optimization'
-          : key === '自動'
-          ? 'auto'
           : '';
 
       // 選択中のボタンを押したらスルー
       if (this.selectedFormatLevel() === formatLevel) return;
-
-      // 初期値をセット
-      this.initialSet();
 
       // 選択した値をセット
       this.data.formatLevel = formatLevel;
@@ -500,10 +484,7 @@ export default {
       else return 'middle';
     },
     initialSet() {
-      if (this.initialized) return;
-      console.log(this.background);
-      console.log(this.data.background);
-
+      // 現在の設定を初期値に設定
       this.data.format = this.format;
       this.data.formatLevel = this.formatLevel;
       this.data.width = this.width;
@@ -517,15 +498,12 @@ export default {
     },
     clickMask() {
       this.$emit('click-mask');
-      this.clear();
     },
     clickTab(key) {
       this.selectedTab = key;
-      if (key === 'resize') this.initialSet();
     },
     cancel() {
       this.$emit('cancel');
-      this.clear();
     },
     decision() {
       const res = {
@@ -533,21 +511,10 @@ export default {
         index2: this.uniqueIndex2,
         ...this.data,
       };
-      console.log(res);
       this.$emit('disision', res);
-      this.clear();
     },
-    clear() {
-      this.initialized = false;
-      /* this.autoAspectRatio = true; */
+    close() {
       this.selectedTab = 'format';
-      this.data.format = '';
-      this.data.formatLevel = '';
-      this.data.width = undefined;
-      this.data.height = undefined;
-      this.data.fit = 'cover';
-      this.data.position = 'center';
-      this.data.background = '#000000';
     },
     changeSize(key) {
       // 入力値を文字型から数字型に変換
@@ -564,7 +531,6 @@ export default {
       this.data.width = this.pendingWidth;
       this.data.height = this.pendingHeight;
     },
-    changeColor() {},
     clickFit(key) {
       this.data.fit = key;
     },
@@ -588,7 +554,6 @@ export default {
       // アスペクト比を調整する
       if (base === 'width') {
         this.pendingHeight = Math.round(this.pendingWidth * (this.originalHeight / this.originalWidth));
-        console.log(this.pendingHeight, typeof this.pendingHeight);
       } else {
         this.pendingWidth = Math.round(this.pendingHeight * (this.originalWidth / this.originalHeight));
       }
@@ -613,6 +578,8 @@ export default {
     },
     clearSetting() {
       this.autoAspectRatio = true;
+      this.data.format = 'original';
+      this.data.formatLevel = 'none';
       this.data.width = this.originalWidth;
       this.data.height = this.originalHeight;
       this.data.fit = 'cover';
@@ -629,6 +596,7 @@ export default {
 .menu-wrapper {
   z-index: 100;
 }
+
 .mask {
   position: fixed;
   top: 0;
@@ -636,6 +604,7 @@ export default {
   width: 100vw;
   height: 100vh;
 }
+
 .menu {
   position: absolute;
   top: 50px;
@@ -646,6 +615,7 @@ export default {
   border-radius: 10px;
   background-color: var(--white);
 }
+
 .tab {
   display: flex;
   align-items: center;
@@ -655,9 +625,11 @@ export default {
   height: 50px;
   border-bottom: 1px var(--gray3) solid;
 }
+
 .tab-buttons {
   display: flex;
 }
+
 .tab-button {
   position: relative;
   color: var(--gray8);
@@ -677,12 +649,14 @@ export default {
     }
   }
 }
+
 .content {
   display: flex;
   align-items: flex-start;
   justify-content: center;
   height: calc(100% - 110px);
 }
+
 .lists {
   height: 100%;
   list-style: none;
@@ -694,12 +668,14 @@ export default {
     width: 80%;
   }
 }
+
 .image-area {
   position: relative;
   padding: 30px 20px;
   width: 57%;
   height: 100%;
 }
+
 .image-outer {
   position: relative;
 }
@@ -715,11 +691,13 @@ export default {
   width: 43%;
   height: 100%;
 }
+
 .setting-content {
   &:not(:first-child) {
     margin-top: 24px;
   }
 }
+
 .size {
   display: flex;
   align-items: center;
@@ -734,6 +712,7 @@ export default {
   font-weight: 400;
   pointer-events: none;
 }
+
 .input {
   padding: 3px 6px;
   width: 100px;
@@ -742,21 +721,25 @@ export default {
   color: var(--gray8);
   font-weight: 400;
 }
+
 .multiplication {
   margin: 20px 8px 0;
   color: var(--gray8);
   font-weight: 400;
 }
+
 .attention {
   margin-bottom: 4px;
   color: var(--red);
   font-size: var(--font-size-xs);
 }
+
 .switch-outer {
   display: flex;
   align-items: center;
   justify-content: flex-start;
 }
+
 .switch-title {
   margin-right: 10px;
   color: var(--gray8);
@@ -769,10 +752,11 @@ export default {
   align-items: center;
   justify-content: flex-start;
 }
+
 .clear-button {
   position: absolute;
-  bottom: 14px;
-  left: 20px;
+  bottom: 17px;
+  left: 18px;
 }
 
 .footer {
@@ -781,6 +765,7 @@ export default {
   height: 60px;
   border-top: 1px var(--gray3) solid;
 }
+
 .button-outer {
   position: absolute;
   right: 18px;
@@ -789,5 +774,4 @@ export default {
   align-items: center;
   justify-content: center;
 }
-
 </style>

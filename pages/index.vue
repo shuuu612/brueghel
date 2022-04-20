@@ -59,7 +59,7 @@
                   <svg class="format-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 353.67 424.82" fill="#231815">
                     <path d="M353.67,116.6c0-.61-.11-1.2-.18-1.8v-10.57c0-3.87-1.54-7.59-4.27-10.32L259.57,4.27c-2.73-2.73-6.45-4.27-10.32-4.27H33.9C15.21,0,0,15.21,0,33.9V390.92c0,18.69,15.21,33.9,33.9,33.9H319.58c18.69,0,33.9-15.21,33.9-33.9V118.39c.07-.6,.18-1.17,.18-1.8Zm-37.64-14.59h-70.04V31.96l70.04,70.04Zm3.55,293.63H33.9c-2.6,0-4.71-2.12-4.71-4.72V33.9c0-2.6,2.12-4.71,4.71-4.71H216.8V116.6c0,8.07,6.53,14.6,14.59,14.6h92.91V390.92c0,2.6-2.12,4.72-4.72,4.72Z"/>
                   </svg>
-                  <p class="text" :class="getChange(getFormatName(file.originalFormat),getFormatName(file.settingFormat, index,index2))">{{getFormatName(file.settingFormat, index,index2)}}</p>
+                  <p class="text" :class="getChange(getFormatName(file.originalFormat),getFormatName(file.settingFormat, index, index2))">{{getFormatName(file.settingFormat, index,index2)}}</p>
                 </div>
                 <div class="setting-content size">
                   <svg class="size-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 504.78 367.79" fill="#231815">
@@ -188,7 +188,7 @@
             height="40px"
             type="white"
             :style="{marginRight: '20px'}"
-            @click="allFileSubmit"
+            @click="fileSubmitAll"
             />
             <Button
             text="一括ダウンロード"
@@ -196,7 +196,7 @@
             height="40px"
             type="purple"
             :disabled="getDisabledAllDownloadButton"
-            @click="allFileDownload"
+            @click="fileDownloadAll"
             />
           </div>
         </div>
@@ -218,13 +218,14 @@ export default {
       isEnter: false,
       isOpenMenu: false,
       isOpenImageList: false,
-      firstFiles: [],
+      firstFile: [],
       settingFiles: [],
       selectedIndex: 0,
       selectedIndex2: 0,
       allInOneSetting: false,
       converting: false,
       convertingAll: false,
+      isDisplayProgressBar: false,
       scheduledNumber: 0,
       completedNumber: 0,
       supportFormat: [
@@ -263,7 +264,7 @@ export default {
   },
   computed: {
     getSettingFiles() {
-      return this.allInOneSetting ? this.firstFiles : this.settingFiles;
+      return this.allInOneSetting ? this.firstFile : this.settingFiles;
     },
     getClassDropArea() {
       return { enter: this.isEnter };
@@ -298,9 +299,9 @@ export default {
       return !(count1 > 0 && !this.converting && !this.convertingAll);
     },
     getFormatName() {
-      return function (key, index, index2) {
-        if (key === 'webp') return 'WebP';
-        else if (key === 'original' && this.settingFiles[index][index2].originalFormat === 'webp') return 'WebP';
+      return function (key, index = 0, index2 = 0) {
+        if (key === 'webp' || (key === 'original' && this.settingFiles[index][index2].originalFormat === 'webp'))
+          return 'WebP';
         else if (key === 'original') return this.settingFiles[index][index2].originalFormat.toUpperCase();
         else return key.toUpperCase();
       };
@@ -313,7 +314,7 @@ export default {
     getAfterFileSize() {
       return function (key) {
         if (key === 0) {
-          return '---';
+          return '-----';
         } else {
           return this.formatFileSize(key);
         }
@@ -330,11 +331,11 @@ export default {
     },
     getChange() {
       return function (before, after) {
-        return { change: before !== after };
+        return { change: before !== after && after !== '-----' };
       };
     },
     getMultiImage() {
-      return Object.keys(this.settingFiles).length > 1 && this.allInOneSetting;
+      return this.settingFiles.length > 1 && this.allInOneSetting;
     },
     getSuccess() {
       return function (index, index2) {
@@ -355,17 +356,17 @@ export default {
       return `${parcent}%`;
     },
     getProgressDisplay() {
-      return (this.convertingAll && !this.converting) || this.scheduledNumber > 0 || this.completedNumber > 0;
+      return this.isDisplayProgressBar;
     },
   },
   watch: {
     settingFiles(value) {
-      this.firstFiles.length = 0;
+      this.firstFile.length = 0;
       if (value.length === 0) {
         // 最後の設定を削除したとき
-        this.firstFiles.splice();
+        this.firstFile.splice();
       } else {
-        this.firstFiles.push(value[0]);
+        this.firstFile.push(value[0]);
       }
     },
   },
@@ -380,50 +381,57 @@ export default {
     },
     async inputFile(event) {
       this.isEnter = false;
-      // ファイル選択またはドロップされたファイルを取得
+      // ファイル選択またはドラッグ&ドロップされたファイルを取得
       const inputFiles = event.target.files ? event.target.files : event.dataTransfer.files;
       const files = [...inputFiles];
-      console.log(inputFiles);
 
-      // 許可する画像ファイル形式だけを抽出
+      // ファイル形式のチェック
       const imageFiles = files.filter((item) => this.supportFormat.includes(item.type));
 
-      // 大きすぎるファイルを除外(4.2MBまで許可)
+      // ファイルサイズのチェック(4.2MBまで許可)
       const rightSizeFiles = imageFiles.filter((item) => item.size < 4200000);
 
-      // 許可されたファイル
+      // 許可されたファイルを設定
       const enableFile = rightSizeFiles;
 
-      // 対応ファイル以外のアップロードに対するメッセージを表示
+      // アップロードのエラーメッセージを表示
       if (imageFiles.length === 0) {
-        alert('このファイルは対象外です。');
+        this.errorMessage(1);
       } else if (imageFiles.length < files.length) {
-        alert('対象外のファイルが含まれていました。');
+        this.errorMessage(2);
       } else if (rightSizeFiles.length < imageFiles.length) {
-        alert('4.2MB以上のファイルはアップロードできません。');
+        this.errorMessage(3);
       }
 
       // データをローカルに保存
       for (let i = 0; i < enableFile.length; i++) {
+        // エラー用の変数を初期化
+        let error = false;
+
         // Base64変換
         let imageBase64;
         await this.conversionBase64(enableFile[i])
           .then((res) => {
             imageBase64 = res;
           })
-          .catch((err) => {
-            console.log(err);
+          .catch(() => {
+            this.errorMessage(4, enableFile[i].name);
+            error = true;
           });
-        // フォーマット部分を抜き出し
+
+        // エラーがあれば処理をここで終える
+        if (error) continue;
+
+        // フォーマットを取得
         const format1 = imageBase64;
         const format2 = format1.substr(0, format1.indexOf(';'));
         const format = format2.substr(format2.indexOf('/') + 1);
 
-        // 情報部を取得
+        // 画像（情報部）を取得
         const info1 = imageBase64;
         const info = info1.substr(0, info1.indexOf('base64,') + 7);
 
-        // 画像本体を取得
+        // 画像（データ部）を取得
         const image1 = imageBase64;
         const image = image1.substr(image1.indexOf('base64,') + 7);
 
@@ -435,12 +443,16 @@ export default {
             width = res.width;
             height = res.height;
           })
-          .catch((err) => {
-            console.log(err);
+          .catch(() => {
+            this.errorMessage(4, enableFile[i].name);
+            error = true;
           });
 
+        // エラーがあれば処理をここで終える
+        if (error) continue;
+
         // データを作成
-        if (this.allInOneSetting) {
+        if (this.allInOneSetting && this.settingFiles.length > 0) {
           // 同一設定中
           const length = this.settingFiles[0].length;
           const settingData = [];
@@ -499,6 +511,43 @@ export default {
         }
       }
     },
+    errorMessage(errcode, text) {
+      switch (errcode) {
+        case 1:
+          alert('このファイルは対象外です。');
+          break;
+
+        case 2:
+          alert('対象外のファイルが含まれていました。');
+          break;
+
+        case 3:
+          alert('4.2MB以上のファイルはアップロードできません。');
+          break;
+
+        case 4:
+          alert(`以下のファイルのアップロードに失敗しました。\n\n${text}`);
+          break;
+
+        case 5:
+          alert('タイムアウト\nファイルが大きすぎる可能性があります。');
+          break;
+
+        case 6:
+          alert(
+            '変換後のファイルサイズが大きすぎるためエラーとなりました。\n申し訳ありませんが、設定を変更してください。'
+          );
+          break;
+
+        case 7:
+          alert('サーバーでエラーが発生しました。\n申し訳ありませんが、設定を変更し、もう一度お試しください。');
+          break;
+
+        case 8:
+          alert('送信に失敗しました。');
+          break;
+      }
+    },
     conversionBase64(src) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -521,36 +570,35 @@ export default {
       else return data + 'B';
     },
     conversionFormatLevel(format, level) {
-      // オリジナルまたはロスレスの場合は設定不要
-      if (format === 'original' || level === 'lossless') return 0;
+      // ロスレスの場合は設定不要
+      if (level === 'lossless') return 0;
 
-      if (format === 'jpeg' || format === 'webp' || format === 'tiff' || format === 'avif' || format === 'heif') {
+      if (format === 'jpeg' || format === 'webp' || format === 'avif') {
         if (level === 'high') return 100;
         else if (level === 'middle') return 80;
         else if (level === 'low') return 50;
         else return 80;
-      } else if (format === 'png') {
-        if (level === 'high') return 9;
-        else if (level === 'middle') return 6;
-        else if (level === 'low') return 3;
-        else return 6;
       } else {
         return 0;
       }
     },
     manageSubmit(index) {
       if (this.allInOneSetting) {
-        this.allFileSubmit();
+        this.fileSubmitAll();
       } else {
-        this.singleFileSubmit(index);
+        this.fileSubmitSingle(index);
       }
     },
-    async allFileSubmit() {
+    async fileSubmitAll() {
       // 変換中フラグ（ALL）をON
       this.convertingAll = true;
+
+      // プログレスバー用の値を設定
       this.scheduledNumber = 0;
       this.completedNumber = 0;
+      this.isDisplayProgressBar = true;
 
+      // 画像の枚数を取得
       const length = this.settingFiles.length;
 
       // 変換ファイルの合計を計算
@@ -560,44 +608,47 @@ export default {
       }
       this.scheduledNumber = total;
 
+      // ファイルごとにfileSubmitSingleを実行
       for (let i = 0; i < length; i++) {
-        await this.singleFileSubmit(i);
-
-        // 変換中フラグをOFF
-        if (i === length - 1) {
-          this.convertingAll = false;
-        }
+        await this.fileSubmitSingle(i);
       }
+
+      // 変換中フラグ（ALL）をOFF
+      this.convertingAll = false;
     },
-    async singleFileSubmit(index) {
+    async fileSubmitSingle(index) {
       // 変換中フラグをON
       this.converting = true;
-      if (!this.convertingAll) {
+
+      // プログレスバー用の値を設定
+      if (this.convertingAll) {
+        // fileSubmitAllで設定済み
+      } else {
+        // プログレスバー用の値を設定
         this.scheduledNumber = 0;
         this.completedNumber = 0;
+        this.isDisplayProgressBar = true;
+
+        // 変換ファイルの合計を計算
+        this.scheduledNumber = this.settingFiles[index].length;
       }
 
+      // 設定数を取得
       const length = this.settingFiles[index].length;
+
+      // 設定ごとにsubmitを実行
       for (let i = 0; i < length; i++) {
         await this.submit(index, i);
-
-        // 変換中フラグをOFF
-        if (i === length - 1) {
-          this.converting = false;
-          if (!this.convertingAll) {
-            this.scheduledNumber = 0;
-            this.completedNumber = 0;
-          }
-        }
       }
+
+      // 変換中フラグをOFF
+      this.converting = false;
     },
     async submit(index, index2) {
       // 変換済みの場合は送信しない
       if (this.settingFiles[index][index2].outputImage) {
         // 変換完了数をカウントアップ
-        if (this.convertingAll) {
-          this.completedNumber++;
-        }
+        this.completedNumber++;
         return;
       }
 
@@ -662,13 +713,11 @@ export default {
         if (response.data.errorMessage) {
           console.log('サーバーのエラー', response.data.errorMessage);
           if (response.data.errorMessage.includes('timed out')) {
-            alert('タイムアウト\nファイルが大きすぎる可能性があります。');
+            this.errorMessage(5);
           } else if (response.data.errorMessage.includes('size exceeded maximum')) {
-            alert(
-              '変換後のファイルサイズが大きすぎるためエラーとなりました。\n申し訳ありませんが、設定を変更してください。'
-            );
+            this.errorMessage(6);
           } else {
-            alert('エラーが発生しました');
+            this.errorMessage(7);
           }
           return;
         } else {
@@ -697,6 +746,7 @@ export default {
           this.settingFiles[index][index2].settingFormat
         );
 
+        // アウトプットファイルを格納
         this.settingFiles[index][index2].outputImage = data.image;
         this.settingFiles[index][index2].outputInfo = info;
         this.settingFiles[index][index2].outputImageSize = file.size;
@@ -704,21 +754,19 @@ export default {
         this.settingFiles.splice();
 
         // 変換完了数をカウントアップ
-        if (this.convertingAll) {
-          this.completedNumber++;
-        }
+        this.completedNumber++;
       } else {
-        alert('送信に失敗しました。');
+        this.errorMessage(8);
       }
     },
     manageDownload(index) {
       if (this.allInOneSetting) {
-        this.allFileDownload();
+        this.fileDownloadAll();
       } else {
-        this.singleFileDownload(index);
+        this.fileDownloadSingle(index);
       }
     },
-    allFileDownload() {
+    fileDownloadAll() {
       // ダウンロードファイル数を算出
       const length1 = this.settingFiles.length;
       let count = 0;
@@ -740,15 +788,20 @@ export default {
         this.downloadFile(index);
       }
     },
-    singleFileDownload(index) {
+    fileDownloadSingle(index) {
       // ダウンロードファイル数を算出
-      const file = this.settingFiles[index].filter((item) => item.outputImage);
-      const length = file.length;
+      const length = this.settingFiles[index].length;
+      let count = 0;
+      for (let i = 0; i < length; i++) {
+        if (this.settingFiles[index][i].outputImage) {
+          count++;
+        }
+      }
 
       // ファイルが複数ある場合はzip形式で、１つの場合はファイル形式でダウンロード
-      if (length > 1) {
+      if (count > 1) {
         this.downloadFolder(index);
-      } else if (length === 1) {
+      } else if (count === 1) {
         this.downloadFile(index);
       }
     },
@@ -955,7 +1008,6 @@ export default {
       if (this.allInOneSetting) {
         // 同一設定中のため、すべてのファイルを操作
         if (this.settingFiles[index].length === 1) {
-          console.log('最後の設定');
           // 最後の設定ファイルのため、画像自体を削除
           this.settingFiles.length = 0;
           this.settingFiles.splice();
@@ -1174,11 +1226,11 @@ export default {
   margin-bottom: 20px;
   padding: 60px 30px 200px 30px;
   min-height: calc(100vh - 40px);
-  /* width: 100%; */
   width: 1200px;
   border-radius: 10px;
   background-color: var(--white);
 }
+
 .switch-outer {
   position: absolute;
   top: 12px;
@@ -1187,6 +1239,7 @@ export default {
   align-items: center;
   justify-content: center;
 }
+
 .switch-text {
   margin-right: 10px;
   color: var(--gray7);
@@ -1197,6 +1250,7 @@ export default {
 .contents {
   width: 100%;
 }
+
 .content {
   position: relative;
   display: flex;
@@ -1210,6 +1264,7 @@ export default {
   border-radius: 8px;
   background-color: var(--color1);
 }
+
 .image-area {
   position: absolute;
   top: 10px;
@@ -1222,9 +1277,11 @@ export default {
   border-radius: 8px;
   background-color: var(--white);
 }
+
 .image-outer {
   position: relative;
 }
+
 .image-button {
   width: 100%;
   height: 100%;
@@ -1242,20 +1299,20 @@ export default {
 
   fill: var(--white);
 }
+
 .boby-outer {
   position: relative;
   padding-bottom: 80px;
-  /* margin-left: 30px; */
   width: 100%;
-  /* overflow-x: auto; */
-  /* min-width: 745px; */
 }
+
 .name {
   margin-bottom: 10px;
   color: var(--gray7);
   font-weight: 400;
   font-size: var(--font-size-lg);
 }
+
 .setting-outer {
   position: relative;
   display: flex;
@@ -1269,11 +1326,13 @@ export default {
     margin-bottom: 10px;
   }
 }
+
 .setting-contents {
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
 .setting-content {
   display: flex;
   align-items: center;
@@ -1288,30 +1347,37 @@ export default {
     }
   }
 }
+
 .format {
   width: 60px;
 }
+
 .size {
   width: 100px;
 }
+
 .capacity {
   width: 70px;
 }
+
 .format-icon {
   width: 11px;
 
   fill: var(--color2);
 }
+
 .size-icon {
   width: 15px;
 
   fill: var(--color2);
 }
+
 .capacity-icon {
   width: 14px;
 
   fill: var(--color2);
 }
+
 .setting-arrow {
   margin: 0 16px;
   width: 32px;
@@ -1341,11 +1407,13 @@ export default {
     content: '';
   }
 }
+
 .setting-icon {
   width: 20px;
 
   fill: var(--gray7);
 }
+
 .success-message {
   position: absolute;
   top: 0;
@@ -1355,6 +1423,7 @@ export default {
   width: 60px;
   height: 100%;
 }
+
 .success-text {
   color: var(--green);
 }
@@ -1370,6 +1439,7 @@ export default {
   width: 120px;
   height: 144px;
 }
+
 .add-button {
   position: absolute;
   bottom: 18px;
@@ -1428,6 +1498,7 @@ export default {
     background-color: var(--color5);
   }
 }
+
 .upload-outer {
   display: inline;
   margin-right: 6px;
@@ -1442,9 +1513,11 @@ export default {
     background-color: var(--color8);
   }
 }
+
 .upload {
   display: none;
 }
+
 .setting-bar {
   position: fixed;
   bottom: 0;
@@ -1457,6 +1530,7 @@ export default {
   height: 70px;
   background-color: var(--color1);
 }
+
 .setting-bar-inner {
   position: relative;
   margin-bottom: 20px;
@@ -1466,6 +1540,7 @@ export default {
   border-radius: 0 0 10px 10px;
   background-color: var(--white);
 }
+
 .progress-bar {
   position: absolute;
   top: 28px;
@@ -1511,6 +1586,7 @@ export default {
     color: var(--gray7);
   }
 }
+
 .setting-bar-buttons {
   position: absolute;
   top: 14px;
@@ -1519,5 +1595,4 @@ export default {
   align-items: center;
   justify-content: center;
 }
-
 </style>

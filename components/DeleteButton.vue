@@ -69,6 +69,7 @@ export default {
   border-radius: 20px;
   background-color: var(--white);
 }
+
 .delete-icon {
   fill: var(--color3);
 }

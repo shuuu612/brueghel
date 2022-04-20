@@ -8,7 +8,6 @@
         <p class="text">{{text}}</p>
         <p v-if="comment" class="comment">{{comment}}</p>
       </div>
-      
     </button>
   </li>
 </template>
@@ -55,6 +54,7 @@ export default {
 .list {
   border-bottom: 1px var(--gray3) solid;
 }
+
 .button {
   display: flex;
   align-items: center;
@@ -70,17 +70,20 @@ export default {
     background-color: var(--color1);
   }
 }
+
 .icon {
   min-width: 12px;
   width: 12px;
 
   fill: var(--gray3);
 }
+
 .text-outer {
   display: flex;
   align-items: center;
   justify-content: flex-start;
 }
+
 .text {
   margin-left: 8px;
   min-width: 100px;
@@ -89,10 +92,10 @@ export default {
   text-align: left;
   font-weight: 400;
 }
+
 .comment {
   color: var(--gray8);
   text-align: left;
   font-weight: 400;
 }
-
 </style>
