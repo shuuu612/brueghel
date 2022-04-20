@@ -68,6 +68,7 @@ export default {
 .menu-wrapper {
   z-index: 100;
 }
+
 .mask {
   position: fixed;
   top: 0;
@@ -75,6 +76,7 @@ export default {
   width: 100vw;
   height: 100vh;
 }
+
 .menu {
   position: absolute;
   top: 230px;
@@ -85,6 +87,7 @@ export default {
   border-radius: 10px;
   background-color: var(--white);
 }
+
 .header {
   display: flex;
   align-items: center;
@@ -94,6 +97,7 @@ export default {
   height: 50px;
   border-bottom: 1px var(--gray3) solid;
 }
+
 .header-text {
   color: var(--gray7);
   font-weight: 400;
@@ -110,10 +114,12 @@ export default {
   padding: 20px;
   height: calc(100% - 110px);
 }
+
 .image-outer {
   position: relative;
   margin: 10px;
 }
+
 .image {
   height: 100px;
 }
@@ -124,6 +130,7 @@ export default {
   height: 60px;
   border-top: 1px var(--gray3) solid;
 }
+
 .button-outer {
   position: absolute;
   right: 18px;

@@ -1,5 +1,5 @@
 <template>
-  <button class="button" :class="{ on: getSwitchOn }" @click="click"></button>
+  <button class="button" :class="{ on: on }" @click="click"></button>
 </template>
 <script>
 export default {
@@ -11,15 +11,9 @@ export default {
     },
   },
   data() {
-    return {
-      insideOn: undefined,
-    };
+    return {};
   },
-  computed: {
-    getSwitchOn() {
-      return this.on;
-    },
-  },
+  computed: {},
   created() {},
   mounted() {},
   beforeDestroy() {},
@@ -38,7 +32,7 @@ export default {
   height: 16px;
   border-radius: 50px;
   background-color: var(--gray3);
-  transition: background-color .2s;
+  transition: background-color 0.2s;
   &::before {
     position: absolute;
     top: 2px;
@@ -48,7 +42,7 @@ export default {
     border-radius: 20px;
     background-color: var(--white);
     content: '';
-    transition: left .2s;
+    transition: left 0.2s;
   }
   &.on {
     background-color: var(--color4);
@@ -57,5 +51,4 @@ export default {
     }
   }
 }
-
 </style>

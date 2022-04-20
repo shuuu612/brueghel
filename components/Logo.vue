@@ -57,5 +57,4 @@ export default {
   width: inherit;
   height: 28px;
 }
-
 </style>
