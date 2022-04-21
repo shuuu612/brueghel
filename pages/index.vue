@@ -173,6 +173,7 @@
         <p class="text margin-top-20">対応ファイル：JPEG / PNG / WebP / GIF / TIFF / AVIF / HEIF / BMP</p>
         <input id="upload" class="upload" type="file" :accept="supportFormat" multiple @change="inputFile" />
       </div>
+      <Attention />
       <div class="setting-bar" @click="clickSettingBar">
         <div class="setting-bar-inner">
           <SwitchButton
@@ -1484,6 +1485,7 @@ export default {
   align-items: center;
   flex-direction: column;
   justify-content: center;
+  margin-bottom: 20px;
   padding: 80px;
   width: 100%;
   border: 2px var(--color3) dashed;
