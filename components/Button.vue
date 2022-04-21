@@ -78,8 +78,8 @@ export default {
   &.white {
     border: 1px var(--color3) solid;
     background-color: var(--white);
-    color: var(--gray7);
-    transition: border 0.2s, color 0.2s;
+    color: var(--gray8);
+    transition: border .2s, color .2s;
 
     @include hover() {
       border: 1px var(--color4) solid;
@@ -89,7 +89,7 @@ export default {
   &.purple {
     background-color: var(--color4);
     color: var(--white);
-    transition: background-color 0.15s;
+    transition: background-color .15s;
 
     @include hover() {
       background-color: var(--color8);
@@ -112,4 +112,5 @@ export default {
     font-size: var(--font-size-xs);
   }
 }
+
 </style>

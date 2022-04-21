@@ -1222,7 +1222,7 @@ export default {
 
 .switch-text {
   margin-right: 10px;
-  color: var(--gray7);
+  color: var(--gray8);
   font-weight: 400;
   font-size: var(--font-size-xs);
 }
@@ -1467,7 +1467,7 @@ export default {
     margin-top: 10px;
   }
   .text {
-    color: var(--gray6);
+    color: var(--gray8);
     font-size: var(--font-size-lg);
     pointer-events: none;
     &.margin-top-20 {
