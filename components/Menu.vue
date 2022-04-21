@@ -49,10 +49,12 @@
               </div>
             </div>
             <p v-if="degitOver" class="attention">9999以下で入力してください。</p>
-            <div class="switch-outer">
-              <p class="switch-title">アスペクト比を維持</p>
-              <SwitchButton :on="autoAspectRatio" @click="clickSwitch" />
-            </div>
+            <SwitchButton
+            :on="autoAspectRatio"
+            text="アスペクト比を維持"
+            text-position="left"
+            @click="clickSwitch"
+            />
           </div>
           <div class="setting-content">
             <p class="title">フィット</p>
@@ -732,19 +734,6 @@ export default {
   font-size: var(--font-size-xs);
 }
 
-.switch-outer {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-.switch-title {
-  margin-right: 10px;
-  color: var(--gray8);
-  font-weight: 400;
-  font-size: var(--font-size-xs);
-}
-
 .buttons {
   display: flex;
   align-items: center;
@@ -772,5 +761,4 @@ export default {
   align-items: center;
   justify-content: center;
 }
-
 </style>
