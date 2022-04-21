@@ -1,5 +1,9 @@
 <template>
-  <button class="button" :class="{ on: on }" aria-label="swich" @click="click"></button>
+  <div class="switch" :style="getStyle">
+    <p v-if="textPosition === 'left'" class="text left">{{text}}</p>
+    <button class="button" :class="{ on: on }" aria-label="swich" @click="click"></button>
+    <p v-if="textPosition === 'right'" class="text right">{{text}}</p>
+  </div>
 </template>
 <script>
 export default {
@@ -9,11 +13,55 @@ export default {
       required: false,
       default: true,
     },
+    text: {
+      type: String,
+      required: false,
+      default: undefined,
+    },
+    textPosition: {
+      type: String,
+      required: false,
+      default: undefined,
+    },
+    top: {
+      type: String,
+      required: false,
+      default: undefined,
+    },
+    bottom: {
+      type: String,
+      required: false,
+      default: undefined,
+    },
+    left: {
+      type: String,
+      required: false,
+      default: undefined,
+    },
+    right: {
+      type: String,
+      required: false,
+      default: undefined,
+    },
   },
   data() {
     return {};
   },
-  computed: {},
+  computed: {
+    getStyle() {
+      if (this.top || this.bottom || this.left || this.right) {
+        return {
+          position: 'absolute',
+          top: this.top ? this.top : '',
+          bottom: this.bottom ? this.bottom : '',
+          left: this.left ? this.left : '',
+          right: this.right ? this.right : '',
+        };
+      } else {
+        return {};
+      }
+    },
+  },
   created() {},
   mounted() {},
   beforeDestroy() {},
@@ -26,6 +74,24 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.switch {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.text {
+  color: var(--gray8);
+  font-weight: 400;
+  font-size: var(--font-size-xs);
+  &.left {
+    margin-right: 10px;
+  }
+  &.right {
+    margin-left: 10px;
+  }
+}
+
 .button {
   position: relative;
   width: 32px;

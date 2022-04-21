@@ -2,10 +2,14 @@
   <div class="wrapper"> 
     <main class="main">
       <Logo />
-      <div class="switch-outer">
-        <p class="switch-text">すべての画像に同じ設定を適応</p>
-        <SwitchButton :on="allInOneSetting" @click="clickSwitch"/>
-      </div>
+      <SwitchButton
+      :on="isAllInOneSetting"
+      text="すべての画像に同じ設定を適応"
+      text-position="left"
+      top="12px"
+      right="16px"
+      @click="clickSwitch"
+      />
       <div class="contents">
         <div v-for="(files, index) in getSettingFiles" :key="index" class="content">
           <div class="image-area">
@@ -138,7 +142,7 @@
             height="32px"
             type="purple"
             :disabled="getDisabledDownloadButton(index)"
-            @click="manageDownload(index)"
+            @click="manageDownload('single', index)"
             />
           </div>
           <DeleteButton
@@ -171,6 +175,14 @@
       </div>
       <div class="setting-bar" @click="clickSettingBar">
         <div class="setting-bar-inner">
+          <SwitchButton
+          :on="isDownloadByFolder"
+          text="複数ファイルはフォルダで保存"
+          text-position="right"
+          top="25px"
+          left="20px"
+          @click="clickDownloadByFolder"
+          />
           <div v-if="getProgressDisplay" class="progress-bar">
             <p v-if="scheduledNumber > 0 && scheduledNumber !== completedNumber" class="text">変換中</p>
             <p v-else class="text">完了</p>
@@ -196,7 +208,7 @@
             height="40px"
             type="purple"
             :disabled="getDisabledAllDownloadButton"
-            @click="fileDownloadAll"
+            @click="manageDownload('all')"
             />
           </div>
         </div>
@@ -222,7 +234,8 @@ export default {
       settingFiles: [],
       selectedIndex: 0,
       selectedIndex2: 0,
-      allInOneSetting: false,
+      isAllInOneSetting: false,
+      isDownloadByFolder: true,
       converting: false,
       convertingAll: false,
       alreadySubmit: false,
@@ -243,7 +256,7 @@ export default {
   },
   computed: {
     getSettingFiles() {
-      return this.allInOneSetting ? this.firstFile : this.settingFiles;
+      return this.isAllInOneSetting ? this.firstFile : this.settingFiles;
     },
     getClassDropArea() {
       return { enter: this.isEnter };
@@ -312,11 +325,11 @@ export default {
       };
     },
     getMultiImage() {
-      return this.settingFiles.length > 1 && this.allInOneSetting;
+      return this.settingFiles.length > 1 && this.isAllInOneSetting;
     },
     getSuccess() {
       return function (index, index2) {
-        if (this.allInOneSetting) {
+        if (this.isAllInOneSetting) {
           const length = this.settingFiles.length;
           return this.settingFiles[length - 1][index2].outputImage;
         } else {
@@ -428,7 +441,7 @@ export default {
         if (error) continue;
 
         // データを作成
-        if (this.allInOneSetting && this.settingFiles.length > 0) {
+        if (this.isAllInOneSetting && this.settingFiles.length > 0) {
           // 同一設定中
           const length = this.settingFiles[0].length;
           const settingData = [];
@@ -559,7 +572,7 @@ export default {
       }
     },
     manageSubmit(index) {
-      if (this.allInOneSetting) {
+      if (this.isAllInOneSetting) {
         this.fileSubmitAll();
       } else {
         this.fileSubmitSingle(index);
@@ -739,10 +752,21 @@ export default {
         this.errorMessage(8);
       }
     },
-    manageDownload(index) {
-      if (this.allInOneSetting) {
+    manageDownload(type, index) {
+      let downloadType;
+      if (type === 'single') {
+        if (this.isAllInOneSetting) {
+          downloadType = 'all';
+        } else {
+          downloadType = 'single';
+        }
+      } else if (type === 'all') {
+        downloadType = 'all';
+      }
+
+      if (downloadType === 'all') {
         this.fileDownloadAll();
-      } else {
+      } else if (downloadType === 'single') {
         this.fileDownloadSingle(index);
       }
     },
@@ -763,9 +787,13 @@ export default {
 
       // ファイルが複数ある場合はzip形式で、１つの場合はファイル形式でダウンロード
       if (count > 1) {
-        this.downloadAllFolder();
+        if (this.isDownloadByFolder) {
+          this.downloadAllImagesByFolder();
+        } else {
+          this.downloadAllImagesByFile();
+        }
       } else if (count === 1) {
-        this.downloadFile(index);
+        this.downloadSingleImagesByFile(index);
       }
     },
     fileDownloadSingle(index) {
@@ -780,12 +808,16 @@ export default {
 
       // ファイルが複数ある場合はzip形式で、１つの場合はファイル形式でダウンロード
       if (count > 1) {
-        this.downloadFolder(index);
+        if (this.isDownloadByFolder) {
+          this.downloadSingleImagesByFolder(index);
+        } else {
+          this.downloadSingleImagesByFile(index);
+        }
       } else if (count === 1) {
-        this.downloadFile(index);
+        this.downloadSingleImagesByFile(index);
       }
     },
-    async downloadAllFolder() {
+    async downloadAllImagesByFolder() {
       // JSZipインスタンスの作成
       const zip = new JSZip();
 
@@ -832,7 +864,7 @@ export default {
       link.click();
       URL.revokeObjectURL(link.href);
     },
-    async downloadFolder(index) {
+    async downloadSingleImagesByFolder(index) {
       // JSZipインスタンスの作成
       const zip = new JSZip();
 
@@ -876,7 +908,22 @@ export default {
       link.click();
       URL.revokeObjectURL(link.href);
     },
-    downloadFile(index, index2 = 0) {
+    async downloadAllImagesByFile() {
+      const length1 = this.settingFiles.length;
+      for (let i = 0; i < length1; i++) {
+        const length2 = this.settingFiles[i].length;
+        for (let j = 0; j < length2; j++) {
+          await this.downloadByFile(i, j);
+        }
+      }
+    },
+    async downloadSingleImagesByFile(index) {
+      const length = this.settingFiles[index].length;
+      for (let i = 0; i < length; i++) {
+        await this.downloadByFile(index, i);
+      }
+    },
+    downloadByFile(index, index2) {
       const link = document.createElement('a');
       link.download = `${this.createFileName(index, index2)}.${this.getFormat(index, index2)}`;
       link.href = this.settingFiles[index][index2].outputInfo + this.settingFiles[index][index2].outputImage;
@@ -924,7 +971,7 @@ export default {
       return date;
     },
     addSetting(index) {
-      if (this.allInOneSetting) {
+      if (this.isAllInOneSetting) {
         const length = this.settingFiles.length;
         for (let i = 0; i < length; i++) {
           // データを作成
@@ -976,7 +1023,7 @@ export default {
       }
     },
     deleteImage(index) {
-      if (this.allInOneSetting && !this.isOpenImageList) {
+      if (this.isAllInOneSetting && !this.isOpenImageList) {
         // 同一設定中のため、すべてのファイルを操作
         this.settingFiles.length = 0;
         this.settingFiles.splice();
@@ -985,7 +1032,7 @@ export default {
       }
     },
     deleteSetting(index, index2) {
-      if (this.allInOneSetting) {
+      if (this.isAllInOneSetting) {
         // 同一設定中のため、すべてのファイルを操作
         if (this.settingFiles[index].length === 1) {
           // 最後の設定ファイルのため、画像自体を削除
@@ -998,7 +1045,7 @@ export default {
             this.settingFiles[i].splice(index2, 1);
           }
         }
-      } else if (!this.allInOneSetting) {
+      } else if (!this.isAllInOneSetting) {
         if (this.settingFiles[index].length === 1) {
           this.settingFiles.splice(index, 1);
         } else {
@@ -1017,7 +1064,7 @@ export default {
       this.selectedIndex2 = 0;
     },
     setReceiveData(res) {
-      if (this.allInOneSetting) {
+      if (this.isAllInOneSetting) {
         const length = this.settingFiles.length;
         const index2 = res.index2;
         for (let i = 0; i < length; i++) {
@@ -1059,13 +1106,13 @@ export default {
       }
     },
     clickSwitch() {
-      this.allInOneSetting = !this.allInOneSetting;
+      this.isAllInOneSetting = !this.isAllInOneSetting;
 
       // 画像がない場合はここで終わり
       if (this.settingFiles.length === 0) return;
 
       // すべての画像に１つ目の設定を適応
-      if (this.allInOneSetting) {
+      if (this.isAllInOneSetting) {
         // すべての画像のオリジナルデータを退避
         const length = this.settingFiles.length;
         const originalData = [];
@@ -1166,6 +1213,9 @@ export default {
     closeImageList() {
       this.isOpenImageList = false;
     },
+    clickDownloadByFolder() {
+      this.isDownloadByFolder = !this.isDownloadByFolder;
+    },
   },
 };
 </script>
@@ -1209,22 +1259,6 @@ export default {
   width: 1200px;
   border-radius: 10px;
   background-color: var(--white);
-}
-
-.switch-outer {
-  position: absolute;
-  top: 12px;
-  right: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.switch-text {
-  margin-right: 10px;
-  color: var(--gray8);
-  font-weight: 400;
-  font-size: var(--font-size-xs);
 }
 
 .contents {
@@ -1523,8 +1557,8 @@ export default {
 
 .progress-bar {
   position: absolute;
-  top: 28px;
-  left: 300px;
+  top: 25px;
+  left: 350px;
   display: flex;
   align-items: center;
   .text {
@@ -1537,7 +1571,7 @@ export default {
     position: relative;
     margin-top: 2px;
     margin-right: 4px;
-    width: 400px;
+    width: 350px;
     height: 5px;
     .progress {
       position: absolute;
