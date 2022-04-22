@@ -671,6 +671,7 @@ export default {
         image: this.settingFiles[index][index2].originalImage,
         type: this.settingFiles[index][index2].originalFormat,
         format: this.settingFiles[index][index2].settingFormat,
+        original: this.settingFiles[index][index2].settingFormat === 'original',
         level: this.conversionFormatLevel(
           this.settingFiles[index][index2].settingFormat,
           this.settingFiles[index][index2].settingFormatLevel
@@ -1612,7 +1613,7 @@ export default {
       background-color: var(--color4);
     }
     .converting {
-      transition: width 0.5s;
+      transition: width .5s;
     }
   }
   .percent {
@@ -1635,4 +1636,5 @@ export default {
   align-items: center;
   justify-content: center;
 }
+
 </style>
