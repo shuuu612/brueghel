@@ -1503,6 +1503,7 @@ export default {
   }
   .add-icon {
     width: 20px;
+    transition: fill .2s;
 
     fill: var(--color3);
   }
