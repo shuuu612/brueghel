@@ -449,6 +449,12 @@ export default {
 
       // データをローカルに保存
       for (let i = 0; i < enableFile.length; i++) {
+        // 枚数チェック
+        if (this.settingFiles.length >= this.$MAXIMUM_NUMBER_OF_IMAGES) {
+          this.errorMessage(9);
+          return;
+        }
+
         // エラー用の変数を初期化
         let error = false;
 
@@ -595,6 +601,14 @@ export default {
         case 8:
           alert('送信に失敗しました。');
           break;
+
+        case 9:
+          alert(`アップロードできる画像の上限は${this.$MAXIMUM_NUMBER_OF_IMAGES}枚です。`);
+          break;
+
+        case 10:
+          alert(`一度に変換できる画像の上限は${this.$MAXIMUM_NUMBER_OF_SUBMIT}枚です。`);
+          break;
       }
     },
     conversionBase64(src) {
@@ -633,6 +647,19 @@ export default {
     },
     async manageSubmit(index) {
       if (this.isAllInOneSetting || index === 9999) {
+        // 変換ファイルの合計を計算
+        const length = this.settingFiles.length;
+        let total = 0;
+        for (let i = 0; i < length; i++) {
+          total += this.settingFiles[i].length;
+        }
+
+        // 送信上限のチェック
+        if (total > this.$MAXIMUM_NUMBER_OF_SUBMIT) {
+          this.errorMessage(10);
+          return;
+        }
+
         // 変換中フラグ（ALL）をON
         this.convertingAll = true;
 
@@ -640,18 +667,10 @@ export default {
         this.isCancel = false;
 
         // プログレスバー用の値を設定
-        this.scheduledNumber = 0;
+        this.scheduledNumber = total;
         this.completedNumber = 0;
         this.isDisplayProgressBar = true;
         this.alreadySubmit = false;
-
-        // 変換ファイルの合計を計算
-        const length = this.settingFiles.length;
-        let total = 0;
-        for (let i = 0; i < length; i++) {
-          total += this.settingFiles[i].length;
-        }
-        this.scheduledNumber = total;
 
         // 変換処理
         await this.fileSubmitAll();
@@ -659,6 +678,15 @@ export default {
         // 変換中フラグ（ALL）をOFF
         this.convertingAll = false;
       } else {
+        // 変換ファイルの合計を計算
+        const total = this.settingFiles[index].length;
+
+        // 送信上限のチェック
+        if (total > this.$MAXIMUM_NUMBER_OF_SUBMIT) {
+          this.errorMessage(10);
+          return;
+        }
+
         // 変換中フラグをON
         this.converting = true;
 
@@ -666,13 +694,10 @@ export default {
         this.isCancel = false;
 
         // プログレスバー用の値を設定
-        this.scheduledNumber = 0;
+        this.scheduledNumber = total;
         this.completedNumber = 0;
         this.isDisplayProgressBar = true;
         this.alreadySubmit = false;
-
-        // 変換ファイルの合計を計算
-        this.scheduledNumber = this.settingFiles[index].length;
 
         // キャンセルボタン表示用のキーを設定
         this.convertingIndex = index;
