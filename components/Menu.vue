@@ -18,7 +18,7 @@
           <List text="AVIF" padding="14px" :selected="getSelectedFormat('AVIF')" @click="clickFormat" />
         </ul>
         <ul v-if="selectedFormat() === 'original'" class="lists sub">
-          <List text="オリジナル" comment="何もしない" padding="22px" :selected="getSelectedFormatLevel('オリジナル')" @click="clickLevel" />
+          <List text="オリジナル" comment="" padding="22px" :selected="getSelectedFormatLevel('オリジナル')" @click="clickLevel" />
           <List v-if="getOptimizationMode" text="最適化" comment="ファイルサイズの削減が期待できます。" padding="22px" :selected="getSelectedFormatLevel('最適化')" @click="clickLevel" />
         </ul>
         <ul v-else class="lists sub">
@@ -761,4 +761,5 @@ export default {
   align-items: center;
   justify-content: center;
 }
+
 </style>
