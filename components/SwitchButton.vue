@@ -1,7 +1,7 @@
 <template>
   <div class="switch" :style="getStyle">
     <p v-if="textPosition === 'left'" class="text left">{{text}}</p>
-    <button class="button" :class="{ on: on }" aria-label="swich" @click="click"></button>
+    <button class="button" :class="{ on: on }" aria-label="swich" :disabled="disabled" @click="click"></button>
     <p v-if="textPosition === 'right'" class="text right">{{text}}</p>
   </div>
 </template>
@@ -42,6 +42,11 @@ export default {
       type: String,
       required: false,
       default: undefined,
+    },
+    disabled: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
   },
   data() {

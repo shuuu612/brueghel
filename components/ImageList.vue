@@ -13,6 +13,7 @@
           right="-5px"
           width="18px"
           icon-width="8px"
+          :disabled="disabled"
           @click="deleteImage(index)"
           />
         </div>
@@ -37,6 +38,11 @@ export default {
       type: Boolean,
       required: false,
       default: undefined,
+    },
+    disabled: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
   },
   data() {
@@ -139,4 +145,5 @@ export default {
   align-items: center;
   justify-content: center;
 }
+
 </style>
