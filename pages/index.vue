@@ -367,10 +367,32 @@ export default {
   mounted() {},
   updated() {},
   methods: {
-    dragEnter() {
+    dragEnter(e) {
+      // ドロップエリア内でのイベントは無視する
+      if (
+        e.fromElement === null ||
+        (e.fromElement.className !== 'main' &&
+          e.fromElement.className !== 'wrapper' &&
+          e.fromElement.className !== 'attention' &&
+          e.fromElement.className !== 'heading' &&
+          e.fromElement.className !== 'text' &&
+          e.fromElement.className !== 'title')
+      )
+        return;
       this.isEnter = true;
     },
-    dragLeave() {
+    dragLeave(e) {
+      // ドロップエリア内でのイベントは無視する
+      if (
+        e.fromElement === null ||
+        (e.fromElement.className !== 'main' &&
+          e.fromElement.className !== 'wrapper' &&
+          e.fromElement.className !== 'attention' &&
+          e.fromElement.className !== 'heading' &&
+          e.fromElement.className !== 'text' &&
+          e.fromElement.className !== 'title')
+      )
+        return;
       this.isEnter = false;
     },
     async inputFile(event) {
@@ -1591,7 +1613,7 @@ export default {
       background-color: var(--color4);
     }
     .converting {
-      transition: width .5s;
+      transition: width 0.5s;
     }
   }
   .percent {
@@ -1614,5 +1636,4 @@ export default {
   align-items: center;
   justify-content: center;
 }
-
 </style>
