@@ -672,6 +672,9 @@ export default {
         type: this.settingFiles[index][index2].originalFormat,
         format: this.settingFiles[index][index2].settingFormat,
         original: this.settingFiles[index][index2].settingFormat === 'original',
+        optimization:
+          this.settingFiles[index][index2].settingFormat === 'original' &&
+          this.settingFiles[index][index2].settingFormatLevel === 'optimization',
         level: this.conversionFormatLevel(
           this.settingFiles[index][index2].settingFormat,
           this.settingFiles[index][index2].settingFormatLevel
