@@ -13,7 +13,7 @@
       />
       <div class="contents">
         <div v-for="(files, index) in getSettingFiles" :key="index" class="content">
-          <div class="image-area">
+          <div class="image-area" :class="getAddImageAnimation">
             <div class="image-outer" :style="getImageStyle(index)">
               <button :disabled="!getMultiImage" class="image-button" @click="openImageList">
                 <img class="image" :src="files[0].originalInfo + files[0].originalImage" alt="">
@@ -246,6 +246,7 @@ export default {
       convertingAll: false,
       alreadySubmit: false,
       isDisplayProgressBar: false,
+      isAnimation: false,
       scheduledNumber: 0,
       completedNumber: 0,
       supportFormat: [
@@ -354,6 +355,9 @@ export default {
     },
     getClassConverting() {
       return { converting: this.alreadySubmit };
+    },
+    getAddImageAnimation() {
+      return { 'add-image-animation': this.isAnimation };
     },
   },
   watch: {
@@ -524,6 +528,14 @@ export default {
           ];
           this.settingFiles.push(data);
         }
+      }
+
+      // アニメーションを発火
+      if (enableFile.length > 0 && this.isAllInOneSetting) {
+        this.isAnimation = true;
+        setTimeout(() => {
+          this.isAnimation = false;
+        }, 1000);
       }
     },
     errorMessage(errcode, text) {
@@ -1319,6 +1331,31 @@ export default {
   height: 200px;
   border-radius: 8px;
   background-color: var(--white);
+  &.add-image-animation {
+    animation: add-image .8s both;
+
+    @keyframes add-image {
+      0%,100% {
+        transform: translateX(0%);
+        transform-origin: 50% 50%;
+      }
+      15% {
+        transform: translateX(-30px) rotate(-6deg);
+      }
+      30% {
+        transform: translateX(15px) rotate(6deg);
+      }
+      45% {
+        transform: translateX(-15px) rotate(-3.6deg);
+      }
+      60% {
+        transform: translateX(9px) rotate(2.4deg);
+      }
+      75% {
+        transform: translateX(-6px) rotate(-1.2deg);
+      }
+    }
+  }
 }
 
 .image-outer {
