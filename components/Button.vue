@@ -1,5 +1,5 @@
 <template>
-  <button class="button" :class="getClass" :style="getStyle" :disabled="disabled" @click="click">{{text}}</button>
+  <button class="button" :class="getClass" :style="getStyle" :disabled="getDisabled" @click="click">{{cancel ? 'キャンセル' : text}}</button>
 </template>
 <script>
 export default {
@@ -29,6 +29,11 @@ export default {
       required: false,
       default: 'white',
     },
+    cancel: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
     disabled: {
       type: Boolean,
       required: false,
@@ -44,7 +49,7 @@ export default {
         white: this.type === 'white',
         purple: this.type === 'purple',
         gray: this.type === 'gray',
-        disabled: this.disabled,
+        disabled: this.disabled && !this.cancel,
         small: this.fontSize === 'small',
       };
     },
@@ -54,13 +59,20 @@ export default {
         height: this.height,
       };
     },
+    getDisabled() {
+      return this.disabled && !this.cancel;
+    },
   },
   created() {},
   mounted() {},
   beforeDestroy() {},
   methods: {
     click() {
-      this.$emit('click');
+      if (this.cancel) {
+        this.$emit('cancel');
+      } else {
+        this.$emit('click');
+      }
     },
   },
 };

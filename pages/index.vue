@@ -137,9 +137,11 @@
             width="120px"
             height="32px"
             type="white"
+            :cancel="getCancelButton(index)"
             :disabled="getConverting"
             :style="{marginBottom: '10px'}"
             @click="manageSubmit(index)"
+            @cancel="cancelConvert"
             />
             <Button
             text="ダウンロード"
@@ -207,8 +209,10 @@
             height="40px"
             type="white"
             :style="{marginRight: '20px'}"
+            :cancel="getCancelButton(9999)"
             :disabled="getConverting"
-            @click="fileSubmitAll"
+            @click="manageSubmit(9999)"
+            @cancel="cancelConvert"
             />
             <Button
             text="一括ダウンロード"
@@ -247,6 +251,8 @@ export default {
       isDownloadByFolder: true,
       converting: false,
       convertingAll: false,
+      convertingIndex: null,
+      isCancel: false,
       alreadySubmit: false,
       isDisplayProgressBar: false,
       isAnimation: false,
@@ -270,6 +276,19 @@ export default {
     },
     getClassDropArea() {
       return { enter: this.isEnter };
+    },
+    getCancelButton() {
+      return function (index) {
+        if (this.convertingAll && this.isAllInOneSetting) {
+          return true;
+        } else if (this.convertingAll) {
+          return index === 9999;
+        } else if (this.converting) {
+          return index === this.convertingIndex || index === 9999;
+        } else {
+          return false;
+        }
+      };
     },
     getConverting() {
       return this.converting || this.convertingAll;
@@ -612,49 +631,40 @@ export default {
         return 0;
       }
     },
-    manageSubmit(index) {
-      if (this.isAllInOneSetting) {
-        this.fileSubmitAll();
+    async manageSubmit(index) {
+      if (this.isAllInOneSetting || index === 9999) {
+        // 変換中フラグ（ALL）をON
+        this.convertingAll = true;
+
+        // キャンセルフラグの初期化
+        this.isCancel = false;
+
+        // プログレスバー用の値を設定
+        this.scheduledNumber = 0;
+        this.completedNumber = 0;
+        this.isDisplayProgressBar = true;
+        this.alreadySubmit = false;
+
+        // 変換ファイルの合計を計算
+        const length = this.settingFiles.length;
+        let total = 0;
+        for (let i = 0; i < length; i++) {
+          total += this.settingFiles[i].length;
+        }
+        this.scheduledNumber = total;
+
+        // 変換処理
+        await this.fileSubmitAll();
+
+        // 変換中フラグ（ALL）をOFF
+        this.convertingAll = false;
       } else {
-        this.fileSubmitSingle(index);
-      }
-    },
-    async fileSubmitAll() {
-      // 変換中フラグ（ALL）をON
-      this.convertingAll = true;
+        // 変換中フラグをON
+        this.converting = true;
 
-      // プログレスバー用の値を設定
-      this.scheduledNumber = 0;
-      this.completedNumber = 0;
-      this.isDisplayProgressBar = true;
-      this.alreadySubmit = false;
+        // キャンセルフラグの初期化
+        this.isCancel = false;
 
-      // 画像の枚数を取得
-      const length = this.settingFiles.length;
-
-      // 変換ファイルの合計を計算
-      let total = 0;
-      for (let i = 0; i < length; i++) {
-        total += this.settingFiles[i].length;
-      }
-      this.scheduledNumber = total;
-
-      // ファイルごとにfileSubmitSingleを実行
-      for (let i = 0; i < length; i++) {
-        await this.fileSubmitSingle(i);
-      }
-
-      // 変換中フラグ（ALL）をOFF
-      this.convertingAll = false;
-    },
-    async fileSubmitSingle(index) {
-      // 変換中フラグをON
-      this.converting = true;
-
-      // プログレスバー用の値を設定
-      if (this.convertingAll) {
-        // fileSubmitAllで設定済み
-      } else {
         // プログレスバー用の値を設定
         this.scheduledNumber = 0;
         this.completedNumber = 0;
@@ -663,18 +673,31 @@ export default {
 
         // 変換ファイルの合計を計算
         this.scheduledNumber = this.settingFiles[index].length;
+
+        // キャンセルボタン表示用のキーを設定
+        this.convertingIndex = index;
+
+        // 変換処理
+        await this.fileSubmitSingle(index);
+
+        // 変換中フラグをOFF
+        this.converting = false;
+        this.convertingIndex = null;
       }
-
-      // 設定数を取得
-      const length = this.settingFiles[index].length;
-
+    },
+    async fileSubmitAll() {
+      // ファイルごとにfileSubmitSingleを実行
+      const length = this.settingFiles.length;
+      for (let i = 0; i < length; i++) {
+        await this.fileSubmitSingle(i);
+      }
+    },
+    async fileSubmitSingle(index) {
       // 設定ごとにsubmitを実行
+      const length = this.settingFiles[index].length;
       for (let i = 0; i < length; i++) {
         await this.submit(index, i);
       }
-
-      // 変換中フラグをOFF
-      this.converting = false;
     },
     async submit(index, index2) {
       // 変換済みの場合は送信しない
@@ -683,6 +706,9 @@ export default {
         this.completedNumber++;
         return;
       }
+
+      // キャンセルキーが押下されたとき
+      if (this.isCancel) return;
 
       // 送信データを作成
       const data = {
@@ -1259,6 +1285,9 @@ export default {
     },
     clickDownloadByFolder() {
       this.isDownloadByFolder = !this.isDownloadByFolder;
+    },
+    cancelConvert() {
+      this.isCancel = true;
     },
   },
 };
