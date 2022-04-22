@@ -1,5 +1,5 @@
 const LOSSLESS = ['webp', 'avif', 'heif'];
-const OPTIMIZATION = ['jpeg', 'webp', 'avif'];
+const OPTIMIZATION = ['jpeg'];
 
 export default(context, inject) => {
   inject('LOSSLESS', LOSSLESS)
