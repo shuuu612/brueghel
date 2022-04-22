@@ -119,7 +119,10 @@
               @disision="setReceiveData"
               />
               <div v-if="getSuccess(index, index2)" class="success-message">
-                <p class="success-text">成功</p>
+                <svg class="success-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 523.99 523.99" fill="#231815">
+                  <path d="M262,523.99c-69.98,0-135.77-27.25-185.26-76.74C27.25,397.77,0,331.98,0,262S27.25,126.22,76.74,76.74C126.22,27.25,192.01,0,262,0s135.77,27.25,185.26,76.74c49.49,49.48,76.74,115.28,76.74,185.26s-27.25,135.77-76.74,185.26c-49.48,49.49-115.28,76.74-185.26,76.74Zm0-475.99c-57.16,0-110.9,22.26-151.32,62.68-40.42,40.42-62.68,94.16-62.68,151.32s22.26,110.9,62.68,151.32c40.42,40.42,94.16,62.68,151.32,62.68s110.9-22.26,151.32-62.68c40.42-40.42,62.68-94.16,62.68-151.32s-22.26-110.9-62.68-151.32c-40.42-40.42-94.16-62.68-151.32-62.68Z"/>
+                  <polygon points="386.27 169.47 242.42 301.18 181.81 230.31 129.66 272.03 241.46 381.87 401.19 185.69 386.27 169.47"/>
+                </svg>
               </div>
             </div>
             <button class="add-button" @click="addSetting(index)">
@@ -1497,21 +1500,23 @@ export default {
 .success-message {
   position: absolute;
   top: 0;
-  left: calc(100% + 8px);
+  left: calc(100% + 14px);
   display: flex;
   align-items: center;
-  width: 60px;
+  width: 30px;
   height: 100%;
 }
 
-.success-text {
-  color: var(--green);
+.success-icon {
+  width: 16px;
+
+  fill: var(--green);
 }
 
 .button-outer {
   position: absolute;
   top: 10px;
-  right: 10px;
+  right: 20px;
   display: flex;
   align-items: center;
   flex-direction: column;
