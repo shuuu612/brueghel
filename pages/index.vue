@@ -8,6 +8,7 @@
       text-position="left"
       top="12px"
       right="16px"
+      :disabled="getConverting"
       @click="clickSwitch"
       />
       <div class="contents">
@@ -93,6 +94,7 @@
               right="-5px"
               width="18px"
               icon-width="8px"
+              :disabled="getConverting"
               @click="deleteSetting(index, index2)"
               />
               <Menu
@@ -132,7 +134,7 @@
             width="120px"
             height="32px"
             type="white"
-            :disabled="getDisabledSubmitButton(index)"
+            :disabled="getConverting"
             :style="{marginBottom: '10px'}"
             @click="manageSubmit(index)"
             />
@@ -150,6 +152,7 @@
           right="-8px"
           width="20px"
           icon-width="8px"
+          :disabled="getConverting"
           @click="deleteImage(index)"
           />
         </div>
@@ -189,7 +192,7 @@
             <p v-else class="text">完了</p>
             <div class="progress-outer">
               <span class="progress back"></span>
-              <span class="progress front" :class="getConverting" :style="getProgressStyle"></span>
+              <span class="progress front" :class="getClassConverting" :style="getProgressStyle"></span>
             </div>
             <p class="percent">{{getProgressPercent}}</p>
             <p class="subject">{{completedNumber + '/' + scheduledNumber}}</p>
@@ -201,6 +204,7 @@
             height="40px"
             type="white"
             :style="{marginRight: '20px'}"
+            :disabled="getConverting"
             @click="fileSubmitAll"
             />
             <Button
@@ -217,6 +221,7 @@
       <ImageList
       :images="settingFiles"
       :open="isOpenImageList"
+      :disabled="getConverting"
       @close="closeImageList"
       @delete="deleteImage"
       />
@@ -262,10 +267,8 @@ export default {
     getClassDropArea() {
       return { enter: this.isEnter };
     },
-    getDisabledSubmitButton() {
-      return function (key) {
-        return !this.settingFiles[key];
-      };
+    getConverting() {
+      return this.converting || this.convertingAll;
     },
     getDisabledDownloadButton() {
       return function (key) {
@@ -349,7 +352,7 @@ export default {
     getProgressDisplay() {
       return this.isDisplayProgressBar;
     },
-    getConverting() {
+    getClassConverting() {
       return { converting: this.alreadySubmit };
     },
   },

@@ -85,6 +85,10 @@ export default {
       border: 1px var(--color4) solid;
       color: var(--color4);
     }
+    &.disabled {
+      border: 1px var(--gray3) solid;
+      color: var(--gray5);
+    }
   }
   &.purple {
     background-color: var(--color4);
