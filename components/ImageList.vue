@@ -7,14 +7,14 @@
       </div>
       <div class="content">
         <div v-for="(image, index) in images" :key="index" class="image-outer">
-          <img class="image" :src="image[0].originalInfo + image[0].originalImage" alt="">
+          <img class="image" :src="image[0].originalInfo + image[0].originalImage" alt="" />
           <DeleteButton
-          top="-5px"
-          right="-5px"
-          width="18px"
-          icon-width="8px"
-          :disabled="disabled"
-          @click="deleteImage(index)"
+            top="-5px"
+            right="-5px"
+            width="18px"
+            icon-width="8px"
+            :disabled="disabled"
+            @click="deleteImage(index)"
           />
         </div>
       </div>

@@ -65,7 +65,6 @@ export default {
       '@/assets/scss/mixin.scss',
       '@/assets/scss/font.scss',
       '@/assets/scss/color.scss',
-      '@/assets/scss/object.scss',
     ]
   },
 

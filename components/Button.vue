@@ -1,5 +1,7 @@
 <template>
-  <button class="button" :class="getClass" :style="getStyle" :disabled="getDisabled" @click="click">{{cancel ? 'キャンセル' : text}}</button>
+  <button class="button" :class="getClass" :style="getStyle" :disabled="getDisabled" @click="click">
+    {{ cancel ? 'キャンセル' : text }}
+  </button>
 </template>
 <script>
 export default {

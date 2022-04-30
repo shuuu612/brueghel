@@ -1,6 +1,6 @@
 <template>
-  <button class="button" :class="{selected: selected}" @click="click">
-    <div class="text">{{type.toUpperCase()}}</div>
+  <button class="button" :class="{ selected: selected }" @click="click">
+    <div class="text">{{ type.toUpperCase() }}</div>
   </button>
 </template>
 <script>
@@ -57,4 +57,5 @@ export default {
     background-color: var(--color1);
   }
 }
+
 </style>

@@ -4,8 +4,12 @@
     <div class="menu">
       <div class="tab">
         <div class="tab-buttons">
-          <button class="tab-button" :class="{ selected: selectedTab === 'format' }" @click="clickTab('format')">フォーマット</button>
-          <button class="tab-button" :class="{ selected: selectedTab === 'resize' }" @click="clickTab('resize')">リサイズ</button>
+          <button class="tab-button" :class="{ selected: selectedTab === 'format' }" @click="clickTab('format')">
+            フォーマット
+          </button>
+          <button class="tab-button" :class="{ selected: selectedTab === 'resize' }" @click="clickTab('resize')">
+            リサイズ
+          </button>
         </div>
       </div>
       <div v-if="selectedTab === 'format'" class="content format">
@@ -18,14 +22,54 @@
           <List text="AVIF" padding="14px" :selected="getSelectedFormat('AVIF')" @click="clickFormat" />
         </ul>
         <ul v-if="selectedFormat() === 'original'" class="lists sub">
-          <List text="オリジナル" comment="" padding="22px" :selected="getSelectedFormatLevel('オリジナル')" @click="clickLevel" />
-          <List v-if="getOptimizationMode" text="最適化" comment="ファイルサイズの削減が期待できます。" padding="22px" :selected="getSelectedFormatLevel('最適化')" @click="clickLevel" />
+          <List
+            text="オリジナル"
+            comment=""
+            padding="22px"
+            :selected="getSelectedFormatLevel('オリジナル')"
+            @click="clickLevel"
+          />
+          <List
+            v-if="getOptimizationMode"
+            text="最適化"
+            comment="ファイルサイズの削減が期待できます。"
+            padding="22px"
+            :selected="getSelectedFormatLevel('最適化')"
+            @click="clickLevel"
+          />
         </ul>
         <ul v-else class="lists sub">
-          <List v-if="getLosslessMode" text="ロスレス" comment="オリジナルのデータを損なうことなく変換できます。" padding="22px" :selected="getSelectedFormatLevel('ロスレス')" @click="clickLevel" />
-          <List v-if="getSelectedMode" text="高品質" comment="高画質、ファイルサイズ：大" padding="22px" :selected="getSelectedFormatLevel('高品質')" @click="clickLevel" />
-          <List text="標準品質" comment="デフォルト" padding="22px" :selected="getSelectedFormatLevel('標準品質')" @click="clickLevel" />
-          <List v-if="getSelectedMode" text="低品質" comment="低画質、ファイルサイズ：小" padding="22px" :selected="getSelectedFormatLevel('低品質')" @click="clickLevel" />
+          <List
+            v-if="getLosslessMode"
+            text="ロスレス"
+            comment="オリジナルのデータを損なうことなく変換できます。"
+            padding="22px"
+            :selected="getSelectedFormatLevel('ロスレス')"
+            @click="clickLevel"
+          />
+          <List
+            v-if="getSelectedMode"
+            text="高品質"
+            comment="高画質、ファイルサイズ：大"
+            padding="22px"
+            :selected="getSelectedFormatLevel('高品質')"
+            @click="clickLevel"
+          />
+          <List
+            text="標準品質"
+            comment="デフォルト"
+            padding="22px"
+            :selected="getSelectedFormatLevel('標準品質')"
+            @click="clickLevel"
+          />
+          <List
+            v-if="getSelectedMode"
+            text="低品質"
+            comment="低画質、ファイルサイズ：小"
+            padding="22px"
+            :selected="getSelectedFormatLevel('低品質')"
+            @click="clickLevel"
+          />
         </ul>
       </div>
       <div v-else class="content resize">
@@ -48,13 +92,8 @@
                 <input id="height" v-model="pendingHeight" class="input" type="number" @change="changeSize('height')" />
               </div>
             </div>
-            <p v-if="degitOver" class="attention">9999以下で入力してください。</p>
-            <SwitchButton
-            :on="autoAspectRatio"
-            text="アスペクト比を維持"
-            text-position="left"
-            @click="clickSwitch"
-            />
+            <p v-if="isDegitOver" class="attention">9999以下で入力してください。</p>
+            <SwitchButton :on="isAutoAspectRatio" text="アスペクト比を維持" text-position="left" @click="clickSwitch" />
           </div>
           <div class="setting-content">
             <p class="title">フィット</p>
@@ -75,23 +114,23 @@
           </div>
           <div class="setting-content color">
             <label class="title" for="color" disabled>背景色</label>
-            <input id="color" v-model="data.background" class="input" type="color"/>
+            <input id="color" v-model="data.background" class="input" type="color" />
           </div>
         </div>
       </div>
       <div class="footer">
         <div class="clear-button">
-          <Button
-          text="初期値に戻す"
-          font-size="small"
-          width="120px"
-          height="23px"
-          type="gray"
-          @click="clearSetting"
-          />
+          <Button text="初期値に戻す" font-size="small" width="120px" height="23px" type="gray" @click="clearSetting" />
         </div>
         <div class="button-outer">
-          <Button text="キャンセル" width="120px" height="32px" type="white" :style="{ marginRight: '14px' }" @click="cancel" />
+          <Button
+            text="キャンセル"
+            width="120px"
+            height="32px"
+            type="white"
+            :style="{ marginRight: '14px' }"
+            @click="cancel"
+          />
           <Button text="保存" width="120px" height="32px" type="purple" :disabled="getDisabled" @click="decision" />
         </div>
       </div>
@@ -184,13 +223,13 @@ export default {
   },
   data() {
     return {
-      initialized: false,
+      isinitialized: false,
+      isAutoAspectRatio: true,
+      isDegitOver: false,
       selectedTab: 'format',
       pendingWidth: 0,
       pendingHeight: 0,
       imageSize: 350,
-      autoAspectRatio: true,
-      degitOver: false,
       data: {
         format: '',
         formatLevel: '',
@@ -208,7 +247,7 @@ export default {
     },
     getDisabled() {
       return !(
-        this.initialized === true &&
+        this.isinitialized === true &&
         (this.data.format !== this.format ||
           this.data.formatLevel !== this.formatLevel ||
           this.data.width !== this.width ||
@@ -421,7 +460,6 @@ export default {
   beforeDestroy() {},
   methods: {
     selectedFormat() {
-      // 選択中のフォーマットを返す
       let state;
       if (this.data.format === '') {
         state = this.format;
@@ -431,7 +469,6 @@ export default {
       return state;
     },
     selectedFormatLevel() {
-      // 選択中のフォーマットレベルを返す
       let state;
       if (this.data.formatLevel === '') {
         state = this.formatLevel;
@@ -494,7 +531,7 @@ export default {
       this.data.background = this.background;
       this.pendingWidth = this.width;
       this.pendingHeight = this.height;
-      this.initialized = true;
+      this.isinitialized = true;
     },
     clickMask() {
       this.$emit('click-mask');
@@ -542,14 +579,14 @@ export default {
       }
     },
     clickSwitch(data) {
-      this.autoAspectRatio = !data;
+      this.isAutoAspectRatio = !data;
 
       // ONになった時はアスペクト比の調整を行う
-      if (this.autoAspectRatio) this.changeSize('width');
+      if (this.isAutoAspectRatio) this.changeSize('width');
     },
     adjustAspectRatio(base) {
       // アスペクト比を維持フラグがオフの場合は実行しない
-      if (!this.autoAspectRatio) return;
+      if (!this.isAutoAspectRatio) return;
 
       // アスペクト比を調整する
       if (base === 'width') {
@@ -571,13 +608,13 @@ export default {
         count++;
       }
       if (count > 0) {
-        this.degitOver = true;
+        this.isDegitOver = true;
       } else {
-        this.degitOver = false;
+        this.isDegitOver = false;
       }
     },
     clearSetting() {
-      this.autoAspectRatio = true;
+      this.isAutoAspectRatio = true;
       this.data.format = 'original';
       this.data.formatLevel = 'none';
       this.data.width = this.originalWidth;
