@@ -320,7 +320,7 @@
               type="white"
               :style="{ marginRight: '20px' }"
               :cancel="getCancelButton(9999)"
-              :disabled="getConverting"
+              :disabled="getDisabledAllSubmitButton"
               @click="manageSubmit(9999)"
               @cancel="cancelConvert"
             />
@@ -392,6 +392,9 @@ export default {
     },
     getConverting() {
       return this.isConverting || this.isConvertingAll;
+    },
+    getDisabledAllSubmitButton() {
+      return this.isConverting || this.isConvertingAll || this.inputFiles.length === 0;
     },
     getDisabledDownloadButton() {
       return function (key) {
