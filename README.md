@@ -1,6 +1,6 @@
 # brueghel
 
-Bruegel is an image conversion site for web authors
+Brueghel is an image conversion site for web authors
 
 ## Build Setup
 
