@@ -498,30 +498,30 @@ export default {
   mounted() {},
   updated() {},
   methods: {
-    dragEnter(e) {
+    dragEnter(event) {
       // [HACK]ドロップエリア内でのイベントは無視する
       if (
-        e.fromElement === null ||
-        (e.fromElement.className !== 'main' &&
-          e.fromElement.className !== 'wrapper' &&
-          e.fromElement.className !== 'attention' &&
-          e.fromElement.className !== 'heading' &&
-          e.fromElement.className !== 'text' &&
-          e.fromElement.className !== 'title')
+        event.fromElement === null ||
+        (event.fromElement.className !== 'main' &&
+          event.fromElement.className !== 'wrapper' &&
+          event.fromElement.className !== 'attention' &&
+          event.fromElement.className !== 'heading' &&
+          event.fromElement.className !== 'text' &&
+          event.fromElement.className !== 'title')
       )
         return;
       this.isEnter = true;
     },
-    dragLeave(e) {
+    dragLeave(event) {
       // [HACK]ドロップエリア内でのイベントは無視する
       if (
-        e.fromElement === null ||
-        (e.fromElement.className !== 'main' &&
-          e.fromElement.className !== 'wrapper' &&
-          e.fromElement.className !== 'attention' &&
-          e.fromElement.className !== 'heading' &&
-          e.fromElement.className !== 'text' &&
-          e.fromElement.className !== 'title')
+        event.fromElement === null ||
+        (event.fromElement.className !== 'main' &&
+          event.fromElement.className !== 'wrapper' &&
+          event.fromElement.className !== 'attention' &&
+          event.fromElement.className !== 'heading' &&
+          event.fromElement.className !== 'text' &&
+          event.fromElement.className !== 'title')
       )
         return;
       this.isEnter = false;
