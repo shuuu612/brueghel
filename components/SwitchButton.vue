@@ -1,7 +1,7 @@
 <template>
   <div class="switch" :style="getStyle">
     <p v-if="textPosition === 'left'" class="text left">{{ text }}</p>
-    <button class="button" :class="{ on: on }" aria-label="swich" :disabled="disabled" @click="click"></button>
+    <button class="button" :class="{ on: on }" aria-label="switch" :disabled="disabled" @click="click"></button>
     <p v-if="textPosition === 'right'" class="text right">{{ text }}</p>
   </div>
 </template>
@@ -103,7 +103,7 @@ export default {
   height: 16px;
   border-radius: 50px;
   background-color: var(--gray3);
-  transition: background-color .2s;
+  transition: background-color 0.2s;
   &::before {
     position: absolute;
     top: 2px;
@@ -113,7 +113,7 @@ export default {
     border-radius: 20px;
     background-color: var(--white);
     content: '';
-    transition: left .2s;
+    transition: left 0.2s;
   }
   &.on {
     background-color: var(--color4);
@@ -122,5 +122,4 @@ export default {
     }
   }
 }
-
 </style>
