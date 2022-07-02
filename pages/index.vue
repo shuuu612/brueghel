@@ -809,6 +809,8 @@ export default {
 
         // 変換中フラグをOFF
         this.isConverting = false;
+
+        // キャンセルボタン表示用のキーを初期化
         this.convertingIndex = null;
       }
     },
@@ -1512,11 +1514,12 @@ export default {
 }
 
 .image-button {
-  width: 100%;
-  height: 100%;
+  display: flex;
+  width: inherit;
+  height: inherit;
   .image {
-    width: 100%;
-    height: 100%;
+    width: inherit;
+    height: inherit;
   }
 }
 
