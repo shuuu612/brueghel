@@ -223,7 +223,7 @@ export default {
   },
   data() {
     return {
-      isinitialized: false,
+      isInitialized: false,
       isAutoAspectRatio: true,
       isDegitOver: false,
       selectedTab: 'format',
@@ -247,7 +247,7 @@ export default {
     },
     getDisabled() {
       return !(
-        this.isinitialized === true &&
+        this.isInitialized === true &&
         (this.data.format !== this.format ||
           this.data.formatLevel !== this.formatLevel ||
           this.data.width !== this.width ||
@@ -531,7 +531,7 @@ export default {
       this.data.background = this.background;
       this.pendingWidth = this.width;
       this.pendingHeight = this.height;
-      this.isinitialized = true;
+      this.isInitialized = true;
     },
     clickMask() {
       this.$emit('click-mask');
