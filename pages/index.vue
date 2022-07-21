@@ -88,9 +88,9 @@
                     gradientTransform="matrix(1, 0, 0, 1, 0, 0)"
                     gradientUnits="userSpaceOnUse"
                   >
-                    <stop offset="0" stop-color="#f3f3fa" />
-                    <stop offset=".33" stop-color="#ddd8eb" />
-                    <stop offset="1" stop-color="#b5a8d1" />
+                    <stop offset="0" stop-color="#f0f2fa" />
+                    <stop offset=".63" stop-color="#95ca9f" />
+                    <stop offset="1" stop-color="#64b56e" />
                   </linearGradient>
                 </defs>
                 <path
