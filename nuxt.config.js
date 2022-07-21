@@ -1,3 +1,5 @@
+const PRODUCTION_BASE_PATH = '/works/convertible-nuxt';
+
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
@@ -51,10 +53,14 @@ export default {
       { hid: 'twitter:site', name: 'twitter:site', content: '@shuuu612' },
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      {
+        rel: 'icon',
+        type: 'image/x-icon',
+        href: `${process.env.NODE_ENV === 'production' ? PRODUCTION_BASE_PATH : ''}/favicon.ico`,
+      },
       {
         rel: 'apple-touch-icon',
-        href: '/apple-touch-icon.png',
+        href: `${process.env.NODE_ENV === 'production' ? PRODUCTION_BASE_PATH : ''}/apple-touch-icon.png`,
         sizes: '180x180',
       },
       { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -116,7 +122,7 @@ export default {
   },
 
   router: {
-    base: process.env.NODE_ENV === 'production' ? '/works/convertible-nuxt' : '/',
+    base: process.env.NODE_ENV === 'production' ? PRODUCTION_BASE_PATH : '/',
   },
 
   generate: {
