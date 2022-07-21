@@ -61,7 +61,9 @@
                       d="M160.08,289.52H80.49v-77.89c0-7.18-5.82-13-13-13s-13,5.82-13,13v90.71c0,7.08,5.66,12.82,12.69,12.98,.71,.12,1.44,.2,2.18,.2h90.71c7.18,0,13-5.82,13-13s-5.82-13-13-13Z"
                     />
                   </svg>
-                  <p class="text">{{ `${file.originalWidth}×${file.originalHeight}` }}</p>
+                  <p class="text">
+                    {{ `${file.originalWidth}×${file.originalHeight}` }}
+                  </p>
                 </div>
                 <div class="setting-content capacity">
                   <svg
@@ -74,7 +76,9 @@
                       d="M451.25,138.19c0-6.78-2.02-13.53-5.96-19.29h0c-6.37-9.36-16.99-14.96-28.31-14.96h-20.56v-27.46c-.03-9.12-3.61-17.77-10.04-24.23-6.47-6.43-15.11-10.01-24.23-10.04H175.17l-10.47-22.44h0C159.07,7.71,146.95,0,133.65,0H34.27C25.15,.03,16.5,3.61,10.04,10.04,3.61,16.5,.03,25.14,0,34.27V312.96c0,1.14,.39,2.16,.66,3.23,.67,5.27,2.22,10.43,5.3,14.94h0c6.37,9.36,16.98,14.96,28.31,14.96H362.16c14.1,0,26.73-8.62,31.88-21.74l.31-.87,54.83-173.61h-.05c1.38-3.79,2.13-7.74,2.13-11.67ZM27.41,34.27c-.03-1.71,.78-3.65,2.01-4.85,1.19-1.23,3.15-2.03,4.85-2.01h99.38c2.68,0,5.07,1.53,6.21,3.96h0l14.16,30.34c2.25,4.83,7.09,7.91,12.42,7.91h195.72c1.7-.03,3.65,.78,4.85,2.01,1.23,1.2,2.03,3.14,2.01,4.85v27.46H89.09c-14.09,0-26.73,8.62-31.88,21.74l-.31,.87-29.49,93.37V34.27Zm395.94,106.45l-.32,.88-54.59,172.83c-1.04,2.52-3.53,4.24-6.29,4.24H34.27c-2.28,0-4.38-1.12-5.66-2.99h0c-.8-1.18-1.19-2.5-1.19-3.86l.47-2.49,.32-.91,54.57-172.81c1.03-2.54,3.55-4.27,6.32-4.26H416.98c2.28,0,4.38,1.12,5.66,2.99h0c.79,1.16,1.19,2.5,1.19,3.85l-.48,2.52Z"
                     />
                   </svg>
-                  <p class="text">{{ getBeforeFileSize(file.originalFileSize) }}</p>
+                  <p class="text">
+                    {{ getBeforeFileSize(file.originalFileSize) }}
+                  </p>
                 </div>
               </div>
               <svg class="setting-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 451.47 324.84">
@@ -310,7 +314,9 @@
               <span class="progress front" :class="getConvertingClass" :style="getProgressStyle"></span>
             </div>
             <p class="percent">{{ getProgressPercent }}</p>
-            <p class="subject">{{ numberOfCompletedConversions + '/' + numberOfScheduledConversions }}</p>
+            <p class="subject">
+              {{ numberOfCompletedConversions + '/' + numberOfScheduledConversions }}
+            </p>
           </div>
           <div class="setting-bar-buttons">
             <Button
@@ -1021,7 +1027,7 @@ export default {
       const zip = new JSZip();
 
       // フォルダを作成
-      const folderName = `${this.getDate('second')}_brueghel`;
+      const folderName = `${this.getDate('second')}_convertible`;
       const folder = zip.folder(folderName);
 
       // ファイルに名前をつけてフォルダに格納
@@ -1068,7 +1074,7 @@ export default {
       const zip = new JSZip();
 
       // フォルダを作成
-      const folderName = `${this.getDate('second')}_brueghel`;
+      const folderName = `${this.getDate('second')}_convertible`;
       const folder = zip.folder(folderName);
 
       // ファイルに名前をつけてフォルダに格納

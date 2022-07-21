@@ -1,6 +1,6 @@
-# brueghel
+# Convertible
 
-Brueghel is an image conversion site for web authors
+Convertible is an image conversion site for web authors
 
 ## Build Setup
 
