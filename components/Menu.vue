@@ -223,13 +223,13 @@ export default {
   },
   data() {
     return {
-      isinitialized: false,
+      isInitialized: false,
       isAutoAspectRatio: true,
       isDegitOver: false,
       selectedTab: 'format',
       pendingWidth: 0,
       pendingHeight: 0,
-      imageSize: 350,
+      IMAGE_SIZE: 350,
       data: {
         format: '',
         formatLevel: '',
@@ -247,7 +247,7 @@ export default {
     },
     getDisabled() {
       return !(
-        this.isinitialized === true &&
+        this.isInitialized === true &&
         (this.data.format !== this.format ||
           this.data.formatLevel !== this.formatLevel ||
           this.data.width !== this.width ||
@@ -296,11 +296,11 @@ export default {
       let width;
       let height;
       if (originalWidth > originalHeight) {
-        width = originalWidth * (this.imageSize / originalWidth);
-        height = originalHeight * (this.imageSize / originalWidth);
+        width = originalWidth * (this.IMAGE_SIZE / originalWidth);
+        height = originalHeight * (this.IMAGE_SIZE / originalWidth);
       } else {
-        width = originalWidth * (this.imageSize / originalHeight);
-        height = originalHeight * (this.imageSize / originalHeight);
+        width = originalWidth * (this.IMAGE_SIZE / originalHeight);
+        height = originalHeight * (this.IMAGE_SIZE / originalHeight);
       }
       return {
         width: `${width}px`,
@@ -314,11 +314,11 @@ export default {
         const originalWidth = this.originalWidth;
         const originalHeight = this.originalHeight;
         if (originalWidth > originalHeight) {
-          width = originalWidth * (this.imageSize / originalWidth);
-          height = originalHeight * (this.imageSize / originalWidth);
+          width = originalWidth * (this.IMAGE_SIZE / originalWidth);
+          height = originalHeight * (this.IMAGE_SIZE / originalWidth);
         } else {
-          width = originalWidth * (this.imageSize / originalHeight);
-          height = originalHeight * (this.imageSize / originalHeight);
+          width = originalWidth * (this.IMAGE_SIZE / originalHeight);
+          height = originalHeight * (this.IMAGE_SIZE / originalHeight);
         }
 
         return {
@@ -336,11 +336,11 @@ export default {
         const settingHeight = this.data.height;
 
         if (originalWidth > originalHeight) {
-          baseWidth = this.imageSize;
-          baseHeight = this.imageSize * (originalHeight / originalWidth);
+          baseWidth = this.IMAGE_SIZE;
+          baseHeight = this.IMAGE_SIZE * (originalHeight / originalWidth);
         } else {
-          baseWidth = this.imageSize * (originalWidth / originalHeight);
-          baseHeight = this.imageSize;
+          baseWidth = this.IMAGE_SIZE * (originalWidth / originalHeight);
+          baseHeight = this.IMAGE_SIZE;
         }
         if (originalWidth * settingHeight === originalHeight * settingWidth) {
           return {
@@ -381,11 +381,11 @@ export default {
       const settingWidth = this.data.width;
       const settingHeight = this.data.height;
       if (originalWidth > originalHeight) {
-        baseWidth = this.imageSize;
-        baseHeight = this.imageSize * (originalHeight / originalWidth);
+        baseWidth = this.IMAGE_SIZE;
+        baseHeight = this.IMAGE_SIZE * (originalHeight / originalWidth);
       } else {
-        baseWidth = this.imageSize * (originalWidth / originalHeight);
-        baseHeight = this.imageSize;
+        baseWidth = this.IMAGE_SIZE * (originalWidth / originalHeight);
+        baseHeight = this.IMAGE_SIZE;
       }
       if (originalWidth * settingHeight === originalHeight * settingWidth) {
         return {
@@ -531,7 +531,7 @@ export default {
       this.data.background = this.background;
       this.pendingWidth = this.width;
       this.pendingHeight = this.height;
-      this.isinitialized = true;
+      this.isInitialized = true;
     },
     clickMask() {
       this.$emit('click-mask');
@@ -798,5 +798,4 @@ export default {
   align-items: center;
   justify-content: center;
 }
-
 </style>
