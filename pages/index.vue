@@ -1318,6 +1318,12 @@ export default {
 
       // すべての画像に１つ目の設定を適応
       if (this.isBatchSetting) {
+        // プログレスバーを初期化
+        this.numberOfScheduledConversions = 0;
+        this.numberOfCompletedConversions = 0;
+        this.isDisplayProgressBar = false;
+        this.isAlreadySubmit = false;
+
         // すべての画像のオリジナルデータを退避
         const length = this.inputFiles.length;
         const originalData = [];
