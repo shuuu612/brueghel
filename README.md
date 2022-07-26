@@ -1,6 +1,9 @@
-# Convertible
+# [Convertible](https://shuuu.jp/works/convertible-nuxt/)
 
-Convertible is an image conversion site for web authors
+Convertible is an image conversion site for web authors.
+
+This site is created in Vue.
+The same site is also created in React and published on [GitHub](https://github.com/shuuu612/convertible-next). If you are interested, please take a look.
 
 ## Build Setup
 
@@ -12,11 +15,6 @@ $ npm install
 $ npm run dev
 
 # build for production and launch server
-$ npm run build
-$ npm run start
-
-# generate static project
 $ npm run generate
+$ npm run start
 ```
-
-For detailed explanation on how things work, check out the [documentation](https://nuxtjs.org).
